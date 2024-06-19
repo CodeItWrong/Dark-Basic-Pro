@@ -17,3 +17,6 @@ Notes:
 2. Create a folder under: C:\Programs Files (x86) called "Dark-Basic-Pro"
 3. Dump the contents of the Latest Build Folder inside the "Dark-Basic-Pro" folder.
 4. Run the Launch.exe file to open the Dark Basic Pro code editor.
+5. Go under Tools > Options
+6. Change the path from C:\Programs Files (x86)\Dark-Basic-Pro\Compiler\DBPCompiler.exe to "C:\Program Files (x86)\Dark-Basic-Pro\Compiler\DBPCompiler.exe" (Removing the s from Programs)
+7. Enjoy!
