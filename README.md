@@ -14,3 +14,6 @@ Notes:
 
 # Instructions
 1. Go Under the Latest Build Folder
+2. Create a folder under: C:\Programs Files (x86) called "Dark-Basic-Pro"
+3. Dump the contents of the Latest Build Folder inside the "Dark-Basic-Pro" folder.
+4. Run the Launch.exe file to open the Dark Basic Pro code editor.
