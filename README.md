@@ -22,4 +22,6 @@ Notes:
 ![alt text](https://github.com/streamitwrong/Dark-Basic-Pro/blob/Initial-Files/options%20screenshot.png?raw=true)
 6. Change the path from C:\Programs Files (x86)\Dark-Basic-Pro\Compiler\DBPCompiler.exe to "C:\Program Files (x86)\Dark-Basic-Pro\Compiler\DBPCompiler.exe" (Removing the s from Programs) and Click Apply then OK.
 ![alt text](https://github.com/streamitwrong/Dark-Basic-Pro/blob/Initial-Files/fix%20compiler%20path.jpg?raw=true)
-7. Enjoy!
+7. The build keyword process will run automatically and find the .ini keyword files as allowed commands the compiler will allow.
+![alt text](https://github.com/streamitwrong/Dark-Basic-Pro/blob/Initial-Files/build%20keyword%20process.png?raw=true)
+8. Enjoy!
