@@ -20,6 +20,6 @@ Notes:
 ![alt text](https://github.com/streamitwrong/Dark-Basic-Pro/blob/Initial-Files/launch%20run%20as%20admin.png?raw=true)
 5. Go under Tools > Options
 ![alt text](https://github.com/streamitwrong/Dark-Basic-Pro/blob/Initial-Files/options%20screenshot.png?raw=true)
-6. Change the path from C:\Programs Files (x86)\Dark-Basic-Pro\Compiler\DBPCompiler.exe to "C:\Program Files (x86)\Dark-Basic-Pro\Compiler\DBPCompiler.exe" (Removing the s from Programs)
+6. Change the path from C:\Programs Files (x86)\Dark-Basic-Pro\Compiler\DBPCompiler.exe to "C:\Program Files (x86)\Dark-Basic-Pro\Compiler\DBPCompiler.exe" (Removing the s from Programs) and Click Apply then OK.
 ![alt text](https://github.com/streamitwrong/Dark-Basic-Pro/blob/Initial-Files/fix%20compiler%20path.jpg?raw=true)
 7. Enjoy!
