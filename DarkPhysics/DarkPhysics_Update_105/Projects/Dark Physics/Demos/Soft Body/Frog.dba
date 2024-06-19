@@ -1,0 +1,62 @@
+
+
+` set up the program
+autocam off
+sync on
+sync rate 60
+hide mouse
+randomize timer ( )
+make light 1
+set directional light 1, -5, -5, 5
+backdrop off
+phy start
+
+` create background sphere
+load image "stripe5.png",1
+make object sphere 2,400,48,48
+texture object 2,1
+scale object texture 2,6,6
+set object cull 2,0
+
+` create the floor object
+load image "stripe6.png", 3
+make object box 10, 50, 1, 50
+position object 10, 0, 0, 0
+texture object 10, 3
+phy make rigid body static mesh 10
+
+
+
+` display the Dark Physics logo
+load image "logo.png", 100000
+sprite 1, 0, 600 - 60, 100000
+set sprite 1, 0, 1
+
+fY# = 10.0
+
+for i = 100 to 105
+   phy load soft body i, "froggyNormalized.tet", "froggyNormalized.obj", 0, fY#, 0
+   phy attach soft body capsule i, 0.0, fY#, -0.3, 1.0, 0.73, 1.0, 90.0, 0.0, 0.0
+
+   color object i, rgb ( rnd ( 255 ), rnd ( 255 ), rnd ( 255 ) )
+   set object specular i, rgb ( rnd ( 255 ), rnd ( 255 ), rnd ( 255 ) )
+   set object specular power i, 255
+   set object ambient i, 0
+
+   yrotate object i, -180
+
+   fY# = fY# + 8
+next i
+
+set directional light 0, 0, 0, 1
+position camera 0.0, 4.0, -12.5
+
+` main program loop
+do
+   set cursor 0, 0
+
+   ` update the simulation and screen
+   phy update
+   sync
+loop
+

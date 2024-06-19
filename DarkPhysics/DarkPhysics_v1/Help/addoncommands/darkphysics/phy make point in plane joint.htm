@@ -1,0 +1,103 @@
+<html>
+<head>
+<title>PHY MAKE POINT IN PLANE JOINT</title>
+</head>
+<body background='gfx\dbpro_bg.jpg'>
+
+<!-- Page Header -->
+<table width='100%' border='0' cellpadding='0' cellspacing='0'>
+<tr><td align='center'><img src='gfx\dbph_head_1.jpg' width='340' height='51'></td></tr>
+</table>
+
+<table width='100%' border='0' cellpadding='0' cellspacing='0'>
+<tr><td>
+<!-- Function Head -->
+<font face="Verdana" size="5">
+<b>
+PHY MAKE POINT IN PLANE JOINT
+</b>
+<font face="Verdana" size="2">
+<p>
+Make a new point in plane joint.
+</p>
+</font>
+
+<!-- Syntax -->
+<table width='100%' cellpadding='2'>
+<tr><td bgcolor='#0d4283'><font color='#ffffff' size='3'><b>&nbsp;
+Syntax
+</b></font></td></tr>
+</table>
+<font face="Verdana" size="2">
+<pre>
+phy make point in plane joint ID, A, B <BR>phy make point in plane joint ID, A, B, anchorX#, anchorY#, anchorZ#, axisX#, axisY#, axisZ#
+
+</pre>
+</font>
+
+<!-- Parameters -->
+<table width='100%' cellpadding='2'>
+<tr><td bgcolor='#0d4283'><font color='#ffffff' size='3'><b>&nbsp;
+Parameters
+</b></font></td></tr>
+</table>
+<font face="Verdana" size="2">
+<BR>
+<pre>ID
+</pre><blockquote> identification number of the joint, joint ID numbers are unique  
+<br><br></blockquote><pre>A
+</pre><blockquote> first rigid body object to be attached to the joint, must be a valid rigid body
+<br><br></blockquote><pre>B
+</pre><blockquote> second rigid body object to be attached to the joint, must be a valid rigid body
+<br><br></blockquote><pre>anchorX#
+</pre><blockquote> anchor point on X axis
+<br><br></blockquote><pre>anchorY#
+</pre><blockquote> anchor point on Y axis
+<br><br></blockquote><pre>anchorZ#
+</pre><blockquote> anchor point on Z axis
+<br><br></blockquote><pre>axisX#
+</pre><blockquote> direction on X axis
+<br><br></blockquote><pre>axisY#
+</pre><blockquote> direction on Y axis
+<br><br></blockquote><pre>axisZ#
+</pre><blockquote> direction on Z axis
+<br><br></blockquote>
+</font>
+
+<!-- Returns -->
+<table width='100%' cellpadding='2'>
+<tr><td bgcolor='#0d4283'><font color='#ffffff' size='3'><b>&nbsp;
+Returns
+</b></font></td></tr>
+</table>
+<font face="Verdana" size="2">
+<p>
+This command does not return a value.
+</p>
+</font>
+
+<!-- Description -->
+<table width='100%' cellpadding='2'>
+<tr><td bgcolor='#0d4283'><font color='#ffffff' size='3'><b>&nbsp;
+Description
+</b></font></td></tr>
+</table>
+<font face="Verdana" size="2"> 
+<p>
+ There are two approaches to creating a point in plane joint. The command can be called passing in a full set of parameters to create the joint in one line ( some defaults are used when this is the case ). If you choose this option then the joint is built straight away. Alternatively make a point in plane joint passing in three parameters and then proceed to set properties such as the local anchor etc and finally build the joint using phy build point in plane joint. The second option for creating a point in plane joint may be preferable when you want complete control over the settings.<br><br>Note that joint ID numbers are unique and not shared with any other ID ranges therefore it is perfectly valid to have a model loaded into ID 1 and a joint with an ID of 1.
+
+</p>
+</font>
+
+<!-- Function Footer -->
+</font>
+</td></tr></table>
+<br>
+
+<!-- Page Footer -->
+<table width='100%' border='0' cellpadding='0' cellspacing='0'>
+<tr><td align='center'><img src='gfx\dbph_foot_1.jpg' width='340' height='38'></td></tr>
+</table>
+</body>
+</html>
+

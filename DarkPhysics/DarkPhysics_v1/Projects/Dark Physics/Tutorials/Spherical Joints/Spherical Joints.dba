@@ -1,0 +1,74 @@
+
+` this program shows spherical joints in action
+
+` set up our program
+phy start
+autocam off
+sync on
+sync rate 60
+color backdrop 0
+position camera 0, 20, -70
+make light 1
+set directional light 1, -5, -5, 5
+
+rem stripe textures
+load image "stripe5.png",8
+make object sphere 800,400,48,48
+texture object 800,8
+scale object texture 800,6,6
+set object cull 800,0
+load image "stripe6.png",1
+
+` create our floor
+make object box 1, 50, 1, 50
+color object 1, rgb ( rnd ( 255 ), rnd ( 255 ), rnd ( 255 ) )
+phy make rigid body static box 1
+
+` place a stack of cubes on top of the floor
+y = 5
+
+for i = 2 to 9
+   make object cube i, 5
+   position object i, 0, y, 0
+   color object i, rgb ( rnd ( 255 ), rnd ( 255 ), rnd ( 255 ) )
+   set object specular i, rgb ( rnd ( 255 ), rnd ( 255 ), rnd ( 255 ) )
+   set object ambient i, 255
+   set object specular power i, 255
+   phy make rigid body dynamic box i
+   y = y + 5
+next i
+
+` create a row of spheres
+x = -25
+
+for i = 10 to 25
+   make object sphere i, 5
+   position object i, x, 80, -2
+   color object i, rgb ( rnd ( 255 ), rnd ( 255 ), rnd ( 255 ) )
+   set object specular i, rgb ( rnd ( 255 ), rnd ( 255 ), rnd ( 255 ) )
+   set object ambient i, 255
+   set object specular power i, 255
+   phy make rigid body dynamic sphere i
+   x = x + 5
+next i
+
+` attach objects together using spheres
+jointID = 1
+
+for i = 10 to 24
+   phy make sphere joint jointID, i, i + 1, object position x ( i ), object position y ( i ), object position z ( i )
+   jointID = jointID + 1
+next i
+
+` display Dark Physics logo
+load image "logo.png", 100000
+sprite 1, 0, 600 - 60, 100000
+
+` main program loop
+do
+   ` update simulation and screen
+   phy update
+   sync
+loop
+
+

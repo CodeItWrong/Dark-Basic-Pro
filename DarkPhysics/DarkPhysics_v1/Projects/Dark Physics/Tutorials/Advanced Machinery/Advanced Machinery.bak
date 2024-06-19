@@ -1,0 +1,158 @@
+
+` one of the interesting features of Dark Physics is that of joints, many different
+` kinds of joints exist and these can be used in conjunction with rigid bodies
+` to form more complex objects, in this tutorial we’re going to create a crane
+` with a moving arm and a sphere chain attached to it, a collection of objects
+` will also be placed in the scene so we can view the kind of interactions that
+` are possible
+
+phy start
+sync on
+sync rate 60
+
+color backdrop 0
+
+make light 1
+set directional light 1, -1, -1, -1
+
+` load 2 images to be used in texturing our objects
+load image "metal1.tga", 1
+load image "stripe5.png", 100
+
+` make the ground object
+make object box 1, 40, 1, 40
+position object 1, 0, 0, 0
+texture object 1, 1
+phy make rigid body static box 1
+`ghost object on 1
+set alpha mapping on 1, 50
+
+` create a sphere as a background
+make object sphere 100, 80
+set object cull 100, 0
+texture object 100, 100
+set alpha mapping on 100, 20
+
+` construct the shaft of the crane
+make object box 2, 4, 16, 4
+position object 2, 0, 9, 0
+texture object 2, 1
+phy make rigid body static box 2
+
+` now create the control box to sit on top of the crane
+make object box 3, 2, 2, 2
+position object 3, 0, 18, 0
+texture object 3, 1
+phy make rigid body dynamic box 3
+
+` some extra parts are required for the control box as it needs to be attached to
+` the shaft of the crane and it also needs a motor joint as it is responsible for
+` moving the arm, this can be achieved by using a hinge joint and an angular motor joint
+phy make revolute joint 1, 2, 3, 0, 1, 0, 0, 18, 0
+
+` a long, thin box will be created for the arm of the crane and it will be positioned
+` so it is alongside the edge of the control box
+make object box 4, 10, 1, 1
+position object 4, 6, 18, 0
+texture object 4, 1
+phy make rigid body dynamic box 4
+
+` with the arm in place a hinge joint can be created to connect it to the control box
+` of the crane
+phy make revolute joint 3, 2, 4, 0, 1, 0, 0, 18, 0
+
+
+` the next task is to create the chain of spheres that will be attached to the arm of the
+` crane at its end point, this will be done by creating a set of spheres, attaching the
+` first sphere to the arm using a ball joint and then attaching the other spheres to each
+` other, a simple for loop will help us construct the chain
+Y# = 17
+
+for i = 5 to 20
+   make object sphere i, 1
+   position object i, 10, Y#, 0
+   color object i, rgb ( rnd ( 255 ), rnd ( 255 ), rnd ( 255 ) )
+
+   phy make rigid body dynamic sphere i
+   phy make sphere joint i, i, i - 1, object position x ( i ), object position y ( i ), object position z ( i )
+
+   color object i, rgb ( rnd ( 255 ), rnd ( 255 ), rnd ( 255 ) )
+   set object specular i, rgb ( rnd ( 255 ), rnd ( 255 ), rnd ( 255 ) )
+   set object ambient i, 255
+   set object specular power i, 255
+
+   Y# = Y# - 1
+next I
+
+
+` now we have the crane in place we can think about creating some objects that the crane
+` can interact with - several stacks of cubes will be created and placed around the crane
+CreateCubeStack( 21, 35,   0,  17 )
+CreateCubeStack( 36, 50,   0, -15 )
+CreateCubeStack( 51, 65, -15,  10 )
+CreateCubeStack( 66, 80, -10,  -8 )
+
+` position the camera so we can get a good view of the scene
+position camera -30, 25, 0
+rotate camera 40, 90, 0
+
+load image "logo.png", 10000
+sprite 1, 0, 600 - 60, 10000
+set sprite 1, 0, 1
+
+backdrop off
+
+y# = -1.0
+frame = 0
+
+` now our main loop
+do
+`   set cursor 0, 0
+   `print screen fps()
+
+`   print frame
+
+   inc frame
+
+   if frame = 900
+      y# = -0.5
+   endif
+
+   if frame = 1800
+      y# = -0.25
+   endif
+
+   if frame = 2700
+      y# = -0.12
+   endif
+
+   phy set rigid body angular velocity 4, 0, y#, 0
+
+   ` rotate the backdrop
+   rotate object 100, 0, object angle y( 100 ) + 0.1, 0
+
+   ` update the physics and the screen
+   phy update
+   sync
+loop
+
+function CreateCubeStack( start, finish, x, z )
+   ` this function will create a stack of cubes with ID numbers between start to finish and
+   ` positioned at the locations specified by x and z
+   y = 1
+
+   for i = start to finish
+      make object cube i, 1
+      position object i, x, y, z
+      phy make rigid body dynamic box i
+
+      color object i, rgb ( rnd ( 255 ), rnd ( 255 ), rnd ( 255 ) )
+      set object specular i, rgb ( rnd ( 255 ), rnd ( 255 ), rnd ( 255 ) )
+      set object ambient i, 255
+      set object specular power i, 255
+
+      y = y + 1
+   next i
+endfunction
+
+

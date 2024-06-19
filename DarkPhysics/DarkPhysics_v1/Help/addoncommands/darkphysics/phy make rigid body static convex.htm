@@ -1,0 +1,91 @@
+<html>
+<head>
+<title>PHY MAKE RIGID BODY STATIC CONVEX</title>
+</head>
+<body background='gfx\dbpro_bg.jpg'>
+
+<!-- Page Header -->
+<table width='100%' border='0' cellpadding='0' cellspacing='0'>
+<tr><td align='center'><img src='gfx\dbph_head_1.jpg' width='340' height='51'></td></tr>
+</table>
+
+<table width='100%' border='0' cellpadding='0' cellspacing='0'>
+<tr><td>
+<!-- Function Head -->
+<font face="Verdana" size="5">
+<b>
+PHY MAKE RIGID BODY STATIC CONVEX
+</b>
+<font face="Verdana" size="2">
+<p>
+Create a new static convex rigid body that is attached to an object.
+</p>
+</font>
+
+<!-- Syntax -->
+<table width='100%' cellpadding='2'>
+<tr><td bgcolor='#0d4283'><font color='#ffffff' size='3'><b>&nbsp;
+Syntax
+</b></font></td></tr>
+</table>
+<font face="Verdana" size="2">
+<pre>
+phy make rigid body static convex ID <BR>phy make rigid body static convex ID, material <BR>phy make rigid body static convex ID, file$ <BR>phy make rigid body static convex ID, file$, material 
+
+</pre>
+</font>
+
+<!-- Parameters -->
+<table width='100%' cellpadding='2'>
+<tr><td bgcolor='#0d4283'><font color='#ffffff' size='3'><b>&nbsp;
+Parameters
+</b></font></td></tr>
+</table>
+<font face="Verdana" size="2">
+<BR>
+<pre>ID
+</pre><blockquote> identification number of the 3D object that you want to be represented by a static convex mesh in the simulation  
+<br><br></blockquote><pre>material
+</pre><blockquote> this parameter is optional, a material can be specified if required upon creation of a static convex rigid body mesh, by specifying a material you can have further control over how the object will react with other objects in regard to properties such as its restitution  
+<br><br></blockquote><pre>file$
+</pre><blockquote> this parameter is optional and when used the data from the object will be saved out to the specified file, this can be useful for some complex objects as the computational time may be long, this file can later be loaded in much faster using the command phy load rigid body static convex
+<br><br></blockquote>
+</font>
+
+<!-- Returns -->
+<table width='100%' cellpadding='2'>
+<tr><td bgcolor='#0d4283'><font color='#ffffff' size='3'><b>&nbsp;
+Returns
+</b></font></td></tr>
+</table>
+<font face="Verdana" size="2">
+<p>
+This command does not return a value.
+</p>
+</font>
+
+<!-- Description -->
+<table width='100%' cellpadding='2'>
+<tr><td bgcolor='#0d4283'><font color='#ffffff' size='3'><b>&nbsp;
+Description
+</b></font></td></tr>
+</table>
+<font face="Verdana" size="2"> 
+<p>
+ This command will create a representation of the object as a convex mesh within the physics simulation. This mesh is not displayed on screen and is used internally for the simulation as a way of representing your object. As the object will be represented by a static convex rigid body it will remain immoveable and will not be affected by forces such as gravity etc. <br><br>The physics simulation will take over control of the object that was attached to the convex rigid body object. You will not be able to move this object using commands such as position object.<br><br>Note that the selected object should be convex and if this is not the case the results may not be desirable. It may be helpful to enable the debugger to ensure that the convex mesh representation in the simulation matches your requirements.
+
+</p>
+</font>
+
+<!-- Function Footer -->
+</font>
+</td></tr></table>
+<br>
+
+<!-- Page Footer -->
+<table width='100%' border='0' cellpadding='0' cellspacing='0'>
+<tr><td align='center'><img src='gfx\dbph_foot_1.jpg' width='340' height='38'></td></tr>
+</table>
+</body>
+</html>
+

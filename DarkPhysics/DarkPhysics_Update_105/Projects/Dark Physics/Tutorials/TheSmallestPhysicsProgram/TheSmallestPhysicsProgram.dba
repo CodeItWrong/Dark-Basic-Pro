@@ -1,0 +1,32 @@
+
+` change resolution and activate vertical sync
+set display mode 800,600,32,1
+
+` start the physics engine
+phy start
+
+` make a lowered floor object that will remain static
+make object box 1,20,2,20
+position object 1,0,-5,0
+phy make rigid body static box 1
+
+` make some dynamic cubes objects to fall onto the static floor
+for o=2 to 1000
+ make object box o,1,0.5,0.6
+ position object o,rnd(4)-2,o/3.0,rnd(4)-2
+ phy make rigid body dynamic box o
+next o
+
+` place camera for better scene
+position camera 0,10,-30
+point camera 0,2,0
+
+` start a loop
+do
+
+ ` update the physics simulation
+ phy update
+
+` end the loop
+loop
+

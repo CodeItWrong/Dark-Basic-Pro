@@ -1,0 +1,299 @@
+rem Cloth Demo
+
+rem Screenshot control
+global notextandlogos : notextandlogos=0
+
+rem Set up the project
+autocam off
+sync on
+sync rate 0 : rem 60
+color backdrop 0
+set ambient light 30
+phy set ground plane 1
+phy start
+
+rem Load images for use later on
+load image "rug512.dds", 1
+load image "banner_horse.dds", 2
+load image "stripe6.png",3
+
+rem Create background sphere
+load image "stripe5.png",8
+make object sphere 800,400,48,48
+texture object 800,8
+scale object texture 800,6,6
+set object cull 800,0
+
+rem Cloth 1
+make object box 2, 10, 1, 1
+position object 2, 1, 6.5, 0
+texture object 2,3
+phy make rigid body static box 2
+
+rem Tearable cloth
+phy make cloth 3
+phy set cloth dimensions 3, 8, 7, 0.2
+phy set cloth position 3, -3, 7.0, 0
+phy set cloth tearing 3, 1
+phy build cloth 3
+phy attach cloth to shape 3, 2, 0
+texture object 3, 2
+make object sphere 16, 3
+position object 16, 0, 1.5, 0
+phy make rigid body dynamic sphere 16
+texture object 16,3
+
+rem Cloth 2
+make object box 4, 5, 2, 5
+position object 4, 10, 2.5, 0
+texture object 4,3
+phy make rigid body dynamic box 4
+phy make cloth 5
+phy set cloth dimensions 5, 8, 8, 0.2
+phy set cloth position 5, 6, 9, -4.5
+phy set cloth damping 5, 1
+phy build cloth 5
+phy attach cloth to shape 5, 4, 1
+texture object 5, 1
+
+rem Cloth 3
+make object box 6, 1, 10, 1
+position object 6, 15, 5, 0
+texture object 6,3
+phy make rigid body static box 6
+phy make cloth 7
+phy set cloth dimensions 7, 4, 4, 0.2
+phy set cloth position 7, 15.1, 10, 0
+phy set cloth gravity 7, 1
+phy set cloth damping 7, 1
+phy set cloth rotation 7, 90, 0, 0
+phy set cloth external acceleration 7, 35, 0, -25
+phy build cloth 7
+phy attach cloth to shape 7, 6, 1
+texture object 7, 2
+
+rem Cloth 4
+make object box 8, 2, 2, 2
+position object 8, 24, 10, 0
+texture object 8,3
+phy make rigid body static box 8
+make object sphere 9, 1
+position object 9, 24, 9, 6.5
+texture object 9,3
+phy make rigid body dynamic sphere 9
+phy make cloth 10
+phy set cloth dimensions 10, 1.6, 7, 0.4
+phy set cloth position 10, 23, 9, 0
+phy build cloth 10
+phy attach cloth to all shapes 10, 1
+texture object 10, 1
+
+rem Cloth 5
+make object box 11, 1, 1, 5
+position object 11, -8, 3, 0
+texture object 11,3
+phy make rigid body static box 11
+make object box 12, 1, 1, 5
+position object 12, -16, 3, 0
+texture object 12,3
+phy make rigid body static box 12
+phy make cloth 13
+phy set cloth dimensions 13, 8, 4, 0.5
+phy set cloth position 13, -16, 3, -2.5
+phy build cloth 13
+phy attach cloth to all shapes 13, 0
+texture object 13, 1
+make object sphere 14, 1
+position object 14, -14, 5, 0
+texture object 14,3
+phy make rigid body dynamic sphere 14
+make object sphere 15, 1.2
+position object 15, -10, 5, 0
+texture object 15,3
+phy make rigid body dynamic sphere 15
+
+rem Metal coth
+load image "stripe7.png",22
+phy make cloth 22
+phy set cloth dimensions 22, 10, 10, 0.2
+phy set cloth position 22, -29, 5, -5.0
+phy set cloth external acceleration 22, 0.0, 0.0, -8.0
+phy build cloth 22
+texture object 22,22
+set object ambient 22,rgb(200,100,50)
+set object specular 22,rgb(255,255,255)
+set object specular power 22,3.0
+make object sphere 24, 3
+position object 24, -25, 2, 0
+phy make rigid body dynamic sphere 24
+texture object 24,22
+set object ambient 24,rgb(200,100,50)
+set object specular 24,rgb(255,255,255)
+set object specular power 24,3.0
+make object box 26, 3, 2, 3
+position object 26, -23, 2, 0
+phy make rigid body dynamic box 26
+texture object 26,22
+set object ambient 26,rgb(200,100,50)
+set object specular 26,rgb(255,255,255)
+set object specular power 26,3.0
+make object box 25, 10, 0.1, 10
+phy make rigid body dynamic box 25
+phy cloth attach rigid body 22, 25, 20.0, 0.7, 100.0
+hide object 25
+
+rem Display Dark Physics logo
+load image "logo.png", 100000
+if notextandlogos=0
+ sprite 1, 0, 600 - 60, 100000
+endif
+
+rem Light
+set point light 0,100,50,150
+
+rem Main loop
+disable escapekey
+set window layout 0,1,0
+set text font "verdana"
+set text size 20
+while escapekey()=0
+   `
+   rem Prompts
+   if notextandlogos=0
+    center text 400,20,"screen frame rate is "+str$(screen fps())+" fps"
+    center text 400,40,"use the mouse to scroll to each cloth technique"
+    center text 400,60,"press the left mouse button to interact with the cloth"
+   endif
+   atx=0
+   if mousex()>100 and mousex()<=243 then atx=1
+   if mousex()>243 and mousex()<=385 then atx=2
+   if mousex()>385 and mousex()<=600 then atx=3
+   if mousex()>600 and mousex()<=700 then atx=4
+   if mousex()>700 then atx=5
+   select atx
+    case 0 : s$="1. Rigid body attached to cloth" : endcase
+    case 1 : s$="2. Damping effect to create firm cloth" : endcase
+    case 2 : s$="3. Cloth interactions with rigid bodies" : endcase
+    case 3 : s$="4. Tearing and interactions with rigid bodies" : endcase
+    case 4 : s$="5. Cloth interactions with dynamic bodies" : endcase
+    case 5 : s$="6. Metal cloth deforming against dynamic bodies" : endcase
+   endselect
+   `
+   rem Alpha control
+   if atx=0 then a0#=100 : a1#=40 : a2#=25 : a3#=25 : a4#=25 : a5#=25
+   if atx=1 then a0#=40 : a1#=100 : a2#=40 : a3#=25 : a4#=25 : a5#=25
+   if atx=2 then a0#=25 : a1#=40 : a2#=100 : a3#=40 : a4#=25 : a5#=25
+   if atx=3 then a0#=25 : a1#=25 : a2#=40 : a3#=100 : a4#=40 : a5#=25
+   if atx=4 then a0#=25 : a1#=25 : a2#=25 : a3#=40 : a4#=100 : a5#=40
+   if atx=5 then a0#=25 : a1#=25 : a2#=25 : a3#=25 : a4#=40 : a5#=100
+   a0c#=curvevalue(a0#,a0c#,10.0)
+   a1c#=curvevalue(a1#,a1c#,10.0)
+   a2c#=curvevalue(a2#,a2c#,10.0)
+   a3c#=curvevalue(a3#,a3c#,10.0)
+   a4c#=curvevalue(a4#,a4c#,10.0)
+   a5c#=curvevalue(a5#,a5c#,10.0)
+   set alpha mapping on 2,a3c#
+   set alpha mapping on 3,a3c#
+   set alpha mapping on 16,a3c#
+   set alpha mapping on 4,a2c#
+   set alpha mapping on 5,a2c#
+   set alpha mapping on 6,a1c#
+   set alpha mapping on 7,a1c#
+   set alpha mapping on 8,a0c#
+   set alpha mapping on 9,a0c#
+   set alpha mapping on 10,a0c#
+   set alpha mapping on 11,a4c#
+   set alpha mapping on 12,a4c#
+   set alpha mapping on 13,a4c#
+   set alpha mapping on 14,a4c#
+   set alpha mapping on 15,a4c#
+   set alpha mapping on 22,a5c#
+   set alpha mapping on 24,a5c#
+   `
+   rem Interact
+   if shoot>0 then dec shoot
+   if mouseclick()=1 and shoot=0
+    if atx=0 then phy set rigid body linear velocity 9, rnd(10)-5, 10, rnd(10)-5
+    if atx=1
+     phy add force at cloth vertex 7, rnd(1000), 20,0,30,1
+    endif
+    if atx=2
+     phy set rigid body linear velocity 4, 0, 5, 0
+    endif
+    if atx=3
+     phy delete rigid body 14
+     position object 14, -1+rnd(5), -4+rnd(7), 10
+     phy make rigid body dynamic sphere 14
+     phy set rigid body linear velocity 14, 0, 10, -20
+     shoot=50
+    endif
+    if atx=4
+     phy delete rigid body 14
+     phy delete rigid body 15
+     position object 14, -14, 5, 0
+     phy make rigid body dynamic sphere 14
+     position object 15, -10, 5, 0.5
+     phy make rigid body dynamic sphere 15
+    endif
+    if atx=5
+     phy set rigid body linear velocity 24, (-24-object position x(24))/1.0, ((3-object position y(24))/1.0)*6, (0-object position z(24))
+     phy set rigid body linear velocity 26, (-26-object position x(26))/1.0, ((3-object position y(26))/1.0)*6, (0-object position z(26))
+    endif
+   endif
+   `
+   rem Technique prompt
+   if notextandlogos=0
+    center text 400,500,s$
+   endif
+   set camera fov 30
+   `
+   rem Interaction with mouse
+   position camera 20+16-(mousex()/17.0), 18, 20
+   rotate camera 30, 210, 0
+   position object 800,camera position x(),camera position y(),camera position z()
+   `
+   rem Update simulation and screen
+   phy update
+   sync
+   `
+endwhile
+endsplash()
+end
+
+rem Splash used to advertise DarkPHYSICS special offer
+function endsplash()
+ for o=1 to 655000
+  if object exist(o)=1
+   delete object o
+  endif
+ next o
+ backdrop off
+ if notextandlogos=0
+  delete sprite 1
+ endif
+ set current bitmap 0
+ load bitmap "splash.jpg"
+ get image 1,106,459,419,507,1
+ while mouseclick()<>0 : endwhile
+ while escapekey()<>0 : endwhile
+ while mouseclick()=0 and escapekey()=0
+  over=0
+  if mousex()>=106 and mousex()<419
+   if mousey()>=459 and mousey()<=507
+    over=1
+   endif
+  endif
+  if over=1
+   paste image 1,107,460,1
+  else
+   paste image 1,106,459,1
+  endif
+  sync
+ endwhile
+ if over=1
+  cls : sync
+  execute file "http://www.thegamecreators.com/physxoffer","",""
+ endif
+endfunction
+
+

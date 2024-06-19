@@ -1,0 +1,67 @@
+
+` in this example we see how two objects can be fixed
+` together to make a beam that can be broken
+
+` set up our program
+sync on
+sync rate 60
+phy start
+autocam off
+position camera -20,20,-25
+point camera 0,10,0
+make light 1
+set directional light 1, -5,-5,5
+
+` make our ground
+make object box 1,40,1,40
+phy make rigid body static box 1
+
+` create a pillar on the left
+make object box 2,5,5,5
+position object 2,-6,3,0
+phy make rigid body static box 2
+
+` create a pillar on the right
+make object box 3,5,5,5
+position object 3,6,3,0
+phy make rigid body static box 3
+
+` make 1st beam
+make object box 4,5,1,1
+position object 4,-2.5,6,0
+phy make rigid body dynamic box 4
+
+` make 2nd beam
+make object box 5,5,1,1
+position object 5,2.5,6,0
+phy make rigid body dynamic box 5
+
+` create a fixed joint between the beams and set break limits
+phy make fixed joint 1, 4, 5
+phy set joint break limits 1, 10, 10
+
+` make a sphere above the beams
+make object sphere 6,3
+position object 6,0,20,0
+phy make rigid body dynamic sphere 6
+
+` colour our objects
+for i = 2 to 6
+   color object i, rgb ( rnd ( 255 ), rnd ( 255 ), rnd ( 255 ) )
+   set object specular i, rgb ( rnd ( 255 ), rnd ( 255 ), rnd ( 255 ) )
+   set object specular power i, 255
+   set object ambient i,0
+next i
+
+` display the Dark Physics logo
+load image "logo.png", 10000
+sprite 1, 0, 0, 10000
+
+` main program loop
+do
+
+   ` update the simulation and screen
+   phy update
+   sync
+loop
+

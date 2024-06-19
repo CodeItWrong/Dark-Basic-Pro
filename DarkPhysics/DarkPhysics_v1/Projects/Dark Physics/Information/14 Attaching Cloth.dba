@@ -1,0 +1,32 @@
+
+` attaching cloth
+
+phy start
+sync on
+sync rate 60
+color backdrop 0
+
+make object box 1, 1, 10, 1
+position object 1, 0, 5, 0
+phy make rigid body static box 1
+
+phy make cloth 2
+phy set cloth dimensions 2, 4, 4, 0.2
+phy set cloth position 2, 0, 10, 0
+phy set cloth rotation 2, 90, 0, 0
+phy set cloth external acceleration 2, 20, -10, -10
+phy build cloth 2
+phy attach cloth to shape 2, 1, 1
+
+load image "banner.dds", 1
+texture object 2, 1
+
+position camera 1.8, 10.8, 7.8
+rotate camera 32, 190, 0
+
+do
+   phy update
+   sync
+loop
+
+

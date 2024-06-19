@@ -1,0 +1,87 @@
+<html>
+<head>
+<title>PHY MAKE CLOTH</title>
+</head>
+<body background='gfx\dbpro_bg.jpg'>
+
+<!-- Page Header -->
+<table width='100%' border='0' cellpadding='0' cellspacing='0'>
+<tr><td align='center'><img src='gfx\dbph_head_1.jpg' width='340' height='51'></td></tr>
+</table>
+
+<table width='100%' border='0' cellpadding='0' cellspacing='0'>
+<tr><td>
+<!-- Function Head -->
+<font face="Verdana" size="5">
+<b>
+PHY MAKE CLOTH
+</b>
+<font face="Verdana" size="2">
+<p>
+Create a new cloth object.
+</p>
+</font>
+
+<!-- Syntax -->
+<table width='100%' cellpadding='2'>
+<tr><td bgcolor='#0d4283'><font color='#ffffff' size='3'><b>&nbsp;
+Syntax
+</b></font></td></tr>
+</table>
+<font face="Verdana" size="2">
+<pre>
+phy make cloth ID
+
+</pre>
+</font>
+
+<!-- Parameters -->
+<table width='100%' cellpadding='2'>
+<tr><td bgcolor='#0d4283'><font color='#ffffff' size='3'><b>&nbsp;
+Parameters
+</b></font></td></tr>
+</table>
+<font face="Verdana" size="2">
+<BR>
+<pre>ID
+</pre><blockquote> identification number of the cloth object
+<br><br></blockquote>
+</font>
+
+<!-- Returns -->
+<table width='100%' cellpadding='2'>
+<tr><td bgcolor='#0d4283'><font color='#ffffff' size='3'><b>&nbsp;
+Returns
+</b></font></td></tr>
+</table>
+<font face="Verdana" size="2">
+<p>
+This command does not return a value.
+</p>
+</font>
+
+<!-- Description -->
+<table width='100%' cellpadding='2'>
+<tr><td bgcolor='#0d4283'><font color='#ffffff' size='3'><b>&nbsp;
+Description
+</b></font></td></tr>
+</table>
+<font face="Verdana" size="2"> 
+<p>
+ Calling phy make cloth is the first step in creating a cloth object. Once a cloth object has been made with this command you then need to proceed to set properties such as the size of the cloth etc. and finally build the cloth using phy build cloth. It is only when the cloth has been built that you will get to see it displayed on screen.<br><br>Cloth objects share their identification numbers with objects from Basic 3D therefore it is not possible to have say a model loaded into ID 1 and then attempt to make a cloth object with an ID of 1. As long as you use a free ID slot when making cloth then the commands will work correctly. In cases when an ID number is passed in and another object is taking up that ID number then an error message will be displayed.
+
+</p>
+</font>
+
+<!-- Function Footer -->
+</font>
+</td></tr></table>
+<br>
+
+<!-- Page Footer -->
+<table width='100%' border='0' cellpadding='0' cellspacing='0'>
+<tr><td align='center'><img src='gfx\dbph_foot_1.jpg' width='340' height='38'></td></tr>
+</table>
+</body>
+</html>
+

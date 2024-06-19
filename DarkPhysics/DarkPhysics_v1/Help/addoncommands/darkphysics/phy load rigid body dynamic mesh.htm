@@ -1,0 +1,91 @@
+<html>
+<head>
+<title>PHY LOAD RIGID BODY DYNAMIC MESH</title>
+</head>
+<body background='gfx\dbpro_bg.jpg'>
+
+<!-- Page Header -->
+<table width='100%' border='0' cellpadding='0' cellspacing='0'>
+<tr><td align='center'><img src='gfx\dbph_head_1.jpg' width='340' height='51'></td></tr>
+</table>
+
+<table width='100%' border='0' cellpadding='0' cellspacing='0'>
+<tr><td>
+<!-- Function Head -->
+<font face="Verdana" size="5">
+<b>
+PHY LOAD RIGID BODY DYNAMIC MESH
+</b>
+<font face="Verdana" size="2">
+<p>
+Load data from a dynamic mesh file and apply this to an object.
+</p>
+</font>
+
+<!-- Syntax -->
+<table width='100%' cellpadding='2'>
+<tr><td bgcolor='#0d4283'><font color='#ffffff' size='3'><b>&nbsp;
+Syntax
+</b></font></td></tr>
+</table>
+<font face="Verdana" size="2">
+<pre>
+phy load rigid body dynamic mesh ID, file$ <BR>phy load rigid body dynamic mesh ID, file$, material
+
+</pre>
+</font>
+
+<!-- Parameters -->
+<table width='100%' cellpadding='2'>
+<tr><td bgcolor='#0d4283'><font color='#ffffff' size='3'><b>&nbsp;
+Parameters
+</b></font></td></tr>
+</table>
+<font face="Verdana" size="2">
+<BR>
+<pre>ID
+</pre><blockquote> identification number of the 3D object that will be represented by the mesh data
+<br><br></blockquote><pre>file$
+</pre><blockquote> the data from file to be loaded, this must have been saved with phy make rigid body dynamic mesh
+<br><br></blockquote><pre>material
+</pre><blockquote> this parameter is optional, a material can be specified if required upon creation of a dynamic rigid body mesh, by specifying a material you can have further control over how the object will react with other objects in regard to properties such as its restitution  
+<br><br></blockquote>
+</font>
+
+<!-- Returns -->
+<table width='100%' cellpadding='2'>
+<tr><td bgcolor='#0d4283'><font color='#ffffff' size='3'><b>&nbsp;
+Returns
+</b></font></td></tr>
+</table>
+<font face="Verdana" size="2">
+<p>
+This command does not return a value.
+</p>
+</font>
+
+<!-- Description -->
+<table width='100%' cellpadding='2'>
+<tr><td bgcolor='#0d4283'><font color='#ffffff' size='3'><b>&nbsp;
+Description
+</b></font></td></tr>
+</table>
+<font face="Verdana" size="2"> 
+<p>
+ This command can be a much better approach as using pre calculated data will be faster than having to compute dynamic meshes each time you run your program.
+
+</p>
+</font>
+
+<!-- Function Footer -->
+</font>
+</td></tr></table>
+<br>
+
+<!-- Page Footer -->
+<table width='100%' border='0' cellpadding='0' cellspacing='0'>
+<tr><td align='center'><img src='gfx\dbph_foot_1.jpg' width='340' height='38'></td></tr>
+</table>
+</body>
+</html>
+

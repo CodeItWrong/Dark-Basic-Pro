@@ -1,0 +1,91 @@
+<html>
+<head>
+<title>PHY MAKE RIGID BODY STATIC TERRAIN</title>
+</head>
+<body background='gfx\dbpro_bg.jpg'>
+
+<!-- Page Header -->
+<table width='100%' border='0' cellpadding='0' cellspacing='0'>
+<tr><td align='center'><img src='gfx\dbph_head_1.jpg' width='340' height='51'></td></tr>
+</table>
+
+<table width='100%' border='0' cellpadding='0' cellspacing='0'>
+<tr><td>
+<!-- Function Head -->
+<font face="Verdana" size="5">
+<b>
+PHY MAKE RIGID BODY STATIC TERRAIN
+</b>
+<font face="Verdana" size="2">
+<p>
+Make a new rigid body and simulate it as a terrain object.
+</p>
+</font>
+
+<!-- Syntax -->
+<table width='100%' cellpadding='2'>
+<tr><td bgcolor='#0d4283'><font color='#ffffff' size='3'><b>&nbsp;
+Syntax
+</b></font></td></tr>
+</table>
+<font face="Verdana" size="2">
+<pre>
+phy make rigid body static terrain ID <BR>phy make rigid body static terrain ID, material <BR>phy make rigid body static terrain ID, file$ <BR>phy make rigid body static terrain ID, file$, material
+
+</pre>
+</font>
+
+<!-- Parameters -->
+<table width='100%' cellpadding='2'>
+<tr><td bgcolor='#0d4283'><font color='#ffffff' size='3'><b>&nbsp;
+Parameters
+</b></font></td></tr>
+</table>
+<font face="Verdana" size="2">
+<BR>
+<pre>ID
+</pre><blockquote> identification number of the 3D object that you want to be represented by a static terrain in the simulation  
+<br><br></blockquote><pre>material
+</pre><blockquote> this parameter is optional, a material can be specified if required, by specifying a material you can have further control over how the object will react with other objects in regard to properties such as its restitution
+<br><br></blockquote><pre>file$
+</pre><blockquote> this parameter is optional and when used the data from the object will be saved out to the specified file, this can be useful for some complex objects as the computational time may be long, this file can later be loaded in much faster using the command phy load rigid body static mesh
+<br><br></blockquote>
+</font>
+
+<!-- Returns -->
+<table width='100%' cellpadding='2'>
+<tr><td bgcolor='#0d4283'><font color='#ffffff' size='3'><b>&nbsp;
+Returns
+</b></font></td></tr>
+</table>
+<font face="Verdana" size="2">
+<p>
+This command does not return a value.
+</p>
+</font>
+
+<!-- Description -->
+<table width='100%' cellpadding='2'>
+<tr><td bgcolor='#0d4283'><font color='#ffffff' size='3'><b>&nbsp;
+Description
+</b></font></td></tr>
+</table>
+<font face="Verdana" size="2"> 
+<p>
+ Instead of simulating the rigid body as a simplistic shape such as a box like with the other creation commands this command will instead use the polygons from the specified object. This is useful when much more precision is required for the rigid body.  Take the example of a model for a section of ground with many bumps on it and having this inserted into the simulation. When representing this object as a box within the simulation you will not get objects interacting with the bumps &#8211; instead objects will interact with a hidden box surrounding this model. In cases like this it may be more appropriate to use a rigid body terrain. The simulation will now respond directly to all of the polygons on the object and in this example objects would directly interact with all of the bumps on the ground model.  While it is possible to represent a terrain as a rigid body mesh the preferred method is to create a static rigid body terrain which is more suited to the task. As the object will be represented by a static rigid body terrain it will remain immoveable and will not be affected by forces such as gravity etc. Note that dynamic meshes are not supported.  After creating a rigid body terrain it will be entered into the simulation for processing. The physics simulation will then take over control of the object that was attached to the rigid body terrain. You will not be able to move this object using commands such as position object .  
+
+</p>
+</font>
+
+<!-- Function Footer -->
+</font>
+</td></tr></table>
+<br>
+
+<!-- Page Footer -->
+<table width='100%' border='0' cellpadding='0' cellspacing='0'>
+<tr><td align='center'><img src='gfx\dbph_foot_1.jpg' width='340' height='38'></td></tr>
+</table>
+</body>
+</html>
+

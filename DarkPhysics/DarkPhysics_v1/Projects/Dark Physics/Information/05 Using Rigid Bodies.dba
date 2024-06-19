@@ -1,0 +1,73 @@
+
+` using rigid bodies in a scene
+
+autocam off
+sync on
+sync rate 60
+hide mouse
+randomize timer ( )
+make light 1
+set directional light 1, -5, -5, 5
+backdrop off
+phy start
+
+load image "stripe5.png", 1
+make object sphere 2, 400, 48, 48
+texture object 2, 1
+scale object texture 2, 6, 6
+set object cull 2, 0
+set alpha mapping on 2, 20
+
+load image "stripe6.png", 2
+make object box 10, 50, 1, 50
+position object 10, 0, -10, 0
+texture object 10, 2
+ghost object on 10
+phy make rigid body static box 10
+
+phy make material 1, "sticky"
+phy set material static friction 1, 25.0
+phy set material restitution 1, 0.0
+phy set material dynamic friction 1, 1.0
+phy build material 1
+
+x = 0
+y = 20
+z = 0
+
+for a = 100 to 500
+   b = rnd ( 2 )
+
+   if b = 1
+      make object sphere a, 5
+   else
+      make object cube a, 2.5
+   endif
+
+   position object a, x, y, z
+   color object a, rgb ( rnd ( 255 ), rnd ( 255 ), rnd ( 255 ) )
+   set object specular a, rgb ( rnd ( 255 ), rnd ( 255 ), rnd ( 255 ) )
+   set object specular power a, 255
+   set object ambient a, 0
+
+   if b = 1
+      phy make rigid body dynamic sphere a, 1
+   else
+      phy make rigid body dynamic box a, 1
+   endif
+
+   x = -25 + rnd ( 50 )
+   y = y + 5
+   z = -25 + rnd ( 50 )
+next a
+
+position camera -46.8, 26.8, -49
+rotate camera 34.7, 46.4, 0
+
+do
+   rotate object 2, object angle x ( 2 ) + 0.1, object angle y ( 2 ) - 0.5, object angle z ( 2 ) + 0.3
+   phy update
+   sync
+loop
+
+

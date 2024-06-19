@@ -1,0 +1,91 @@
+<html>
+<head>
+<title>PHY SET 6DOF JOINT TWIST LIMIT</title>
+</head>
+<body background='gfx\dbpro_bg.jpg'>
+
+<!-- Page Header -->
+<table width='100%' border='0' cellpadding='0' cellspacing='0'>
+<tr><td align='center'><img src='gfx\dbph_head_1.jpg' width='340' height='51'></td></tr>
+</table>
+
+<table width='100%' border='0' cellpadding='0' cellspacing='0'>
+<tr><td>
+<!-- Function Head -->
+<font face="Verdana" size="5">
+<b>
+PHY SET 6DOF JOINT TWIST LIMIT
+</b>
+<font face="Verdana" size="2">
+<p>
+Set the swing2 limit on a joint.
+
+</p>
+</font>
+
+<!-- Syntax -->
+<table width='100%' cellpadding='2'>
+<tr><td bgcolor='#0d4283'><font color='#ffffff' size='3'><b>&nbsp;
+Syntax
+</b></font></td></tr>
+</table>
+<font face="Verdana" size="2">
+<pre>
+phy set 6dof joint twist limit ID, dampingLow#, restitutionLow#, springLow#, valueLow#, dampingHigh#, restitutionHigh#, springHigh#, valueHigh#
+
+</pre>
+</font>
+
+<!-- Parameters -->
+<table width='100%' cellpadding='2'>
+<tr><td bgcolor='#0d4283'><font color='#ffffff' size='3'><b>&nbsp;
+Parameters
+</b></font></td></tr>
+</table>
+<font face="Verdana" size="2">
+<BR>
+<pre>ID
+</pre><blockquote> identification number of the joint
+<br><br></blockquote><pre>dampingLow#
+</pre><blockquote> if spring is greater than zero, this is the damping of the spring
+<br><br></blockquote><pre>restitutionLow#
+</pre><blockquote> controls the amount of bounce when the joint hits a limit
+<br><br></blockquote><pre>springLow#
+</pre><blockquote> if greater than zero, the limit is soft, i.e. a spring pulls the joint back to the limit
+<br><br></blockquote><pre>valueLow#
+</pre><blockquote> the angle / position beyond which the limit is active
+<br><br></blockquote><pre>dampingHigh#
+</pre><blockquote> if spring is greater than zero, this is the damping of the spring
+<br><br></blockquote><pre>restitutionHigh#
+</pre><blockquote> controls the amount of bounce when the joint hits a limit
+<br><br></blockquote><pre>springHigh#
+</pre><blockquote> if greater than zero, the limit is soft, i.e. a spring pulls the joint back to the limit
+<br><br></blockquote><pre>valueHigh#
+</pre><blockquote> the angle / position beyond which the limit is active
+<br><br></blockquote>
+</font>
+
+<!-- Returns -->
+<table width='100%' cellpadding='2'>
+<tr><td bgcolor='#0d4283'><font color='#ffffff' size='3'><b>&nbsp;
+Returns
+</b></font></td></tr>
+</table>
+<font face="Verdana" size="2">
+<p>
+This command does not return a value.
+</p>
+</font>
+
+<!-- Function Footer -->
+</font>
+</td></tr></table>
+<br>
+
+<!-- Page Footer -->
+<table width='100%' border='0' cellpadding='0' cellspacing='0'>
+<tr><td align='center'><img src='gfx\dbph_foot_1.jpg' width='340' height='38'></td></tr>
+</table>
+</body>
+</html>
+

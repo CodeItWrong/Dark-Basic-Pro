@@ -1,0 +1,238 @@
+rem Flowing Fluids Demo
+
+rem Global variables
+global yourdemoname$ : yourdemoname$="Flowing Fluids Demo"
+global notextandlogos : notextandlogos=0
+global hardwaremode : hardwaremode=1
+global scale : scale=1
+
+rem Initial demo prompt (for possible scene set-up delay)
+set text font "verdana" : set text size 20 : ink rgb(255,255,255),0
+cls : center text screen width()/2,screen height()/2-20,"...Starting "+yourdemoname$+"..."
+
+rem Init
+set window layout 0,1,0 : autocam off
+sync on : sync rate 0 : disable escapekey : color backdrop rgb(0,32,0)
+
+rem Logo sprite
+load image "logo.png", 100000
+if notextandlogos=0 then sprite 1, 0, 600 - 60, 100000 : set sprite 1, 0, 1
+
+rem Master loop
+while escapekey()=0 and scale<>-1
+
+rem Setup physics engine
+gosub _physics_setup
+
+rem Setup your demo scene
+gosub _yourdemo_setup
+
+rem Prompt we are preparing the scene (SYNC triggers object creation delay)
+cls : center text screen width()/2,screen height()/2-20,"...Preparing New Scene..." : sync
+
+rem Single scale loop
+currentscale=scale : scale=0
+while scale=0
+ `
+ rem Control your demo
+ gosub _yourdemo_handle
+ `
+ rem Control demo prompt and keys
+ if notextandlogos=0
+  if hardwaremode=1 then p$="GPU" else p$="CPU"
+  if currentscale=1 then s$="LOW"
+  if currentscale=2 then s$="MEDIUM"
+  if currentscale=3 then s$="HIGH"
+  center text (screen width()-170)/2,screen height()-50,yourdemoname$+" ( "+p$+" "+s$+" "+str$(screen fps())+" fps )"
+  if physx()=1 then extra$="  [C] CPU  [G] GPU" else extra$=""
+  center text (screen width()-170)/2,screen height()-30,"[1] Low  [2] Medium  [3] High"+extra$
+ endif
+ if inkey$()="1" then scale=1
+ if inkey$()="2" then scale=2
+ if inkey$()="3" then scale=3
+ if physx()=1 and lower$(inkey$())="c" then scale=currentscale : hardwaremode=0
+ if physx()=1 and lower$(inkey$())="g" then scale=currentscale : hardwaremode=1
+ if escapekey()=1 then scale=-1
+ `
+ rem Update screen
+ sync
+ `
+ rem Update physics (place after SYNC because we are rendering physics fluids)
+ phy update
+ `
+endwhile
+while spacekey()<>0 : endwhile
+
+rem Delete current scene
+gosub _yourdemo_end
+
+rem Prompt we are reseting the scene
+if scale<>-1 then cls : center text screen width()/2,screen height()/2-20,"...Resetting Scene..." : sync
+
+rem Free usages (before we change state)
+gosub _physics_end
+
+rem SW/HW endloop
+endwhile
+endsplash()
+end
+
+_yourdemo_setup:
+ `
+ rem Fluid Emitter
+ phy make fluid emitter 1
+ phy set fluid position 1, -1, 2.5, -1.5 : rem position of tap
+ phy set fluid viscosity 1, 50
+ phy set fluid emitter type 1,2 : rem either constant pressure (1) or constant flow rate (2)
+ phy set fluid emitter max particles 1,0 : rem maximum number of particles which are emitted from this emitter (0-max)
+ phy set fluid emitter shape 1,1 : rem shape of the emitter. Rectangular (1) or Elliptical (2).
+ phy set fluid emitter dimensions 1,0.25,0.25 : rem sizes of the emitter in the directions of the first and the second axis of its orientation frame
+ phy set fluid emitter random position 1,0,0,0 : rem range of the randomized positions of emitted particles. The z value specifies the range of random positions along the direction of emission.
+ phy set fluid emitter random angle 1,0.8 : rem range of random angular deviation from the emission direction
+ phy set fluid emitter velocity 1,6.5 : rem velocity magnitude of the emitted fluid particles
+ phy set fluid emitter rate 1,1000*scale : rem how many particles are emitted per second (only applies to constant flow rate mode)
+ phy set fluid emitter lifetime 1,100 : rem time in seconds an emitted particle lives. If set to zero, the particle lives until it hits a drain
+ NX_FEF_VISUALIZATION=1 : rem Flags whether the emitter should be visualized for PhysX debugging or not.
+ NX_FEF_FORCE_ON_BODY=1 : rem This flag specifies whether the emission should cause a force on the object that the emitter is attached to
+ NX_FEF_ADD_BODY_VELOCITY=1 : rem If set, the velocity of the object is added to the emitted particle velocity.
+ NX_FEF_ENABLED=1 : rem Flag to start and stop the emission. On default the emission is enabled
+ phy set fluid emitter flags 1,(NX_FEF_VISUALIZATION)+(NX_FEF_FORCE_ON_BODY<<2)+(NX_FEF_ADD_BODY_VELOCITY<<3)+(NX_FEF_ENABLED<<4)
+ phy build fluid 1
+ `
+ rem Fluid Drains
+ phy make sphere drain 3,2,2,2,1
+ phy build fluid 3
+ if phy get drain exist(3)=1 then phy delete drain 3
+ phy make box drain 4,-2,0,-3,1,1,1,0,0,0
+ phy build fluid 4
+ `
+ rem visual of the drain
+ make object box 4,1,1,1
+ color object 4,rgb(0,0,0)
+ position object 4,-1.2,0,-2.7
+ `
+ rem a channel for the water
+ load image "tiles green.jpg",5
+ make object box 5,10,0.1,10 : position object 5,0,0,0 : rotate object 5,-4,0,2 : texture object 5,5
+ phy make rigid body static box 5
+ o=6
+ for z=0 to 1
+  make object box o,10,2,1 : position object o,0,0,4.5-(z*9) : texture object o,5
+  phy make rigid body static box o
+  inc o
+ next z
+ for x=0 to 1
+  make object box o,1,2,10 : position object o,4.5-(x*9),0,0 : texture object o,5
+  phy make rigid body static box o
+  inc o
+ next x
+ make object box o,6,2,1 : position object o,-2,0,-1.0 : texture object o,5
+ phy make rigid body static box o : inc o
+ `
+ rem the obstruction block (which can be pushed out the way)
+ make object box o,2.95,1,1 : position object o,2.5,0.4,-1.0 : texture object o,5
+ phy make rigid body dynamic box o
+ phy set rigid body mass o,2
+ inc o
+ omax=o-1
+ `
+return
+
+_yourdemo_handle:
+ `
+ rem Handle your demo here
+ if notextandlogos=0
+  center text screen width()/2,20,"Flowing Fluids (Emitter and Drain)"
+  center text screen width()/2,40,"Press SPACE to drop a sphere into the water area"
+  center text screen width()/2,60,str$(screen fps())+" fps"
+ endif
+ `
+ rem Place scene camera
+ cy#=cy#+mousemovex()/2.0
+ position camera cos(cy#)*10,9,sin(cy#)*-10
+ point camera 0,1,0
+ `
+ rem Drop an object into water area
+ if spacekey()=0 then pressed=0
+ if spacekey()=1 and pressed=0
+  make object sphere o,0.5 : position object o,3,5,0.5 : texture object o,5
+  phy make rigid body dynamic sphere o
+  phy set rigid body mass o,10
+  inc o : omax=o-1
+  pressed=1
+ endif
+ `
+return
+
+_yourdemo_end:
+ `
+ rem Delete scene completely
+ if phy get fluid exist(1)=1 then phy delete fluid 1
+ if phy get fluid exist(2)=1 then phy delete fluid 2
+ if phy get drain exist(4)=1 then phy delete drain 4
+ for o=4 to omax
+  if object exist(o)=1
+   phy delete rigid body o : delete object o
+  endif
+ next o
+ `
+return
+
+_physics_setup:
+ `
+ rem Start the Physics Engine
+ if hardwaremode=1
+  if physx()=1
+   phy start 1,0,1
+  else
+   hardwaremode=0
+   phy start
+  endif
+ else
+  phy start
+ endif
+ `
+return
+
+_physics_end:
+ `
+ rem Free physics ready for new scene or exit
+ phy update : phy end
+ `
+return
+
+rem Splash used to advertise DarkPHYSICS special offer
+function endsplash()
+ for o=1 to 655000
+  if object exist(o)=1
+   delete object o
+  endif
+ next o
+ backdrop off
+ if notextandlogos=0
+  delete sprite 1
+ endif
+ set current bitmap 0
+ load bitmap "splash.jpg"
+ get image 1,106,459,419,507,1
+ while mouseclick()<>0 : endwhile
+ while escapekey()<>0 : endwhile
+ while mouseclick()=0 and escapekey()=0
+  over=0
+  if mousex()>=106 and mousex()<419
+   if mousey()>=459 and mousey()<=507
+    over=1
+   endif
+  endif
+  if over=1
+   paste image 1,107,460,1
+  else
+   paste image 1,106,459,1
+  endif
+  sync
+ endwhile
+ if over=1
+  cls : sync
+  execute file "http://www.thegamecreators.com/physxoffer","",""
+ endif
+endfunction

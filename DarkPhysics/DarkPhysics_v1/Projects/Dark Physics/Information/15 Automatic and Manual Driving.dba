@@ -1,0 +1,54 @@
+
+` demonstrates simple creation of a vehicle
+
+` set up program
+phy enable debug
+phy start
+autocam off
+sync on
+sync rate 60
+color backdrop 0
+make light 1
+set directional light 1, -5, -5, 5
+position camera -20, 20, -25
+point camera 0, 10, 0
+
+` create ground
+load image "road2.png", 1
+make object box 1, 1000, 1, 1000
+texture object 1, 1
+phy make rigid body static box 1
+
+` load car
+load object "beach.x", 2
+load image "beachBu2.tga",2
+load image "dbprocubemap.dds",3
+texture object 2,2
+set blend mapping on 2,1,3,2,16
+position object 2, 15, 2, -25
+rotate limb 2,0,0,-90,0
+
+` set up vehicle
+phy create vehicle 2
+phy add vehicle body 2, 2.2, 0.6, 0.75, 0.0, 0.6, 0.0
+phy add vehicle wheel 2, 5,  1.5, 0.3,  1.1, 0.6, 0.2, 0, 0
+phy add vehicle wheel 2, 7,  1.5, 0.3, -1.1, 0.6, 0.2, 0, 1
+phy add vehicle wheel 2, 3, -1.5, 0.3, -1.1, 0.6, 0.2, 1, 0
+phy add vehicle wheel 2, 9, -1.5, 0.3,  1.1, 0.6, 0.2, 1, 1
+phy set vehicle max motor 2, 200.0
+phy set vehicle steering delta 2, 0.1
+phy set vehicle max steering angle 2, 0.4
+phy set vehicle auto 2, 1
+phy set vehicle suspension spring 2,100
+phy build vehicle 2
+
+` main loop
+do
+   ` follow car
+   set camera to follow object position x ( 2 ), object position y ( 2 ), object position z ( 2 ), 0, 6, 4, 1, 0
+
+   ` update physics and screen
+   phy update
+   sync
+loop
+

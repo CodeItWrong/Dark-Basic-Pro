@@ -1,0 +1,43 @@
+
+` shows how to add multiple rigid bodies into a scene
+
+phy start
+sync on
+sync rate 60
+autocam off
+
+make object box 1, 10, 0.5, 10
+position object 1, 0, -0.25, 0
+phy make rigid body static box 1
+
+position camera 0, 2, -4
+
+levels = 20
+ID = 2
+
+for y = 0 to levels
+   for x = 0 to levels - y
+      make object cube ID, 0.2
+      color object ID, rgb ( rnd ( 255 ), rnd ( 255 ), rnd ( 255 ) )
+      position object ID, ( x + 0.5 * y ) * 0.21 - 1.5, y * 0.21 + 0.1, 0
+      phy make rigid body dynamic box ID
+      inc ID
+   next x
+next y
+
+position camera 0, 2, -4
+
+do
+   if spacekey ( )
+      make object sphere ID, 0.6
+      position object ID, camera position x ( ), camera position y ( ), camera position z ( )
+      phy make rigid body dynamic sphere ID
+      phy set rigid body linear velocity ID, 0, 3, 10
+      inc ID
+   endif
+
+   phy update
+   sync
+loop
+
+

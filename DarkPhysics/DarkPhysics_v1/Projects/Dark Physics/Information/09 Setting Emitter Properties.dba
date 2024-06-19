@@ -1,0 +1,31 @@
+
+` setting properties of an emitter
+
+phy start
+sync on
+sync rate 0
+autocam off
+color backdrop 0
+
+phy make particle emitter 1, 512, 0.01, 0.0, 0.0, 0.0, 1.0, 0.0, 1.5, 0.0
+
+load image "fire.png", 1
+texture object 1, 1
+ghost object on 1, 0
+
+phy set emitter life span 1, 0.001
+phy set emitter size 1, 1.0
+phy set emitter max size 1, 10.0
+phy set emitter growth rate 1, 2.0
+phy set emitter start color 1, 0, 255, 255
+phy set emitter end color 1, 255, 255, 255
+phy set emitter linear velocity range 1, -1, -2, 0, 2, 3, 1
+phy set emitter range 1, -20, 20, -20, 40, 0, 40
+
+position camera 0, 30, -40
+
+do
+   sync
+   phy update
+loop
+

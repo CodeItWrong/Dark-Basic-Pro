@@ -1,0 +1,37 @@
+
+` Your First Dark Physics Program
+
+` call this command to be able to use physics in our prograam
+phy start
+
+` turn sync rate on
+sync on
+sync rate 60
+
+` make a box that will be our ground
+make object box 1, 50, 1, 50
+
+` create a static rigid body box to represent the ground
+phy make rigid body static box 1
+
+` create a cube and place it just above the edge of the ground
+make object cube 2, 5
+position object 2, 0, 10, -26
+
+` create a dynamic rigid body box to represent our cube
+phy make rigid body dynamic box 2
+
+` position the camera so we can see the cube and box
+position camera 0, 10, -50
+
+` and here's our main loop
+do
+   ` update the physics simulation and the screen
+   phy update
+   sync
+loop
+
+` stop the physics engine
+phy end
+
+

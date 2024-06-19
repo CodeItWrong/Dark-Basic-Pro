@@ -1,0 +1,122 @@
+rem Soft Bodies Demo
+
+rem Screenshot control
+global notextandlogos : notextandlogos=1
+
+rem Set up the program
+autocam off : sync on : sync rate 0 : backdrop off
+randomize timer ( )
+make light 1 : set directional light 1, -5, -5, 5
+
+rem Init physics
+phy start
+
+rem Create background sphere
+load image "stripe5.png",1
+make object sphere 2,400,48,48
+texture object 2,1
+scale object texture 2,6,6
+set object cull 2,0
+
+rem Create the floor object
+load image "stripe6.png", 3
+make object box 10, 50, 2, 50
+position object 10, 0, 1, 0
+rotate object 10,0,0,-14
+texture object 10, 3
+phy make rigid body static mesh 10
+
+rem Display the Dark Physics logo
+load image "logo.png", 100000
+if notextandlogos=0
+ sprite 1, 0, 600 - 60, 100000
+ set sprite 1, 0, 1
+endif
+
+rem Make soft bodies
+fY# = 10.0
+for i = 100 to 105
+   if i=100 then fX#=-1
+   if i=101 then fX#= 1
+   if i=102 then fX#=-4
+   if i=103 then fX#= 4
+   if i=104 then fX#=-7
+   if i=105 then fX#= 7
+   phy load soft body i, "nvlogo-10-subversions.tet", "nvlogo.obj", fX#, fY#, -5.0+rnd(10)
+   color object i, rgb ( rnd ( 255 ), rnd ( 255 ), rnd ( 255 ) )
+   set object specular i, rgb ( rnd ( 255 ), rnd ( 255 ), rnd ( 255 ) )
+   set object specular power i, 255
+   set object ambient i, 0
+   fY# = fY# + 6
+next i
+
+rem Main program loop
+set directional light 0, 0, 0, 1
+position camera 0.0, 12.0, -15.5
+point camera 0,2,0
+
+rem text font
+set text size 20 : set text font "verdana"
+
+rem Main loop
+disable escapekey : set window layout 0,1,0
+while escapekey()=0
+ if notextandlogos=0
+  if i<120
+   center text screen width()/2,20,"screen frame rate is "+str$(screen fps())+" fps"
+   center text screen width()/2,40,"press the left mouse button to drop another logo"
+  endif
+ endif
+ if mouseclick()=0 then click=0
+ if mouseclick()=1 and click=0 and i<120
+  click=1
+  fX# = 0
+  fY# = 20
+  phy load soft body i, "nvlogo-10-subversions.tet", "nvlogo.obj", fX#, fY#, -5.0+rnd(10)
+  color object i, rgb ( rnd ( 255 ), rnd ( 255 ), rnd ( 255 ) )
+  set object specular i, rgb ( rnd ( 255 ), rnd ( 255 ), rnd ( 255 ) )
+  set object specular power i, 255
+  set object ambient i, 0
+  inc i
+ endif
+ set cursor 0, 0
+ phy update
+ sync
+endwhile
+endsplash()
+end
+
+rem Splash used to advertise DarkPHYSICS special offer
+function endsplash()
+ for o=1 to 655000
+  if object exist(o)=1
+   delete object o
+  endif
+ next o
+ backdrop off
+ if notextandlogos=0 then delete sprite 1
+ set current bitmap 0
+ load bitmap "splash.jpg"
+ get image 1,106,459,419,507,1
+ while mouseclick()<>0 : endwhile
+ while escapekey()<>0 : endwhile
+ while mouseclick()=0 and escapekey()=0
+  over=0
+  if mousex()>=106 and mousex()<419
+   if mousey()>=459 and mousey()<=507
+    over=1
+   endif
+  endif
+  if over=1
+   paste image 1,107,460,1
+  else
+   paste image 1,106,459,1
+  endif
+  sync
+ endwhile
+ if over=1
+  cls : sync
+  execute file "http://www.thegamecreators.com/physxoffer","",""
+ endif
+endfunction
+

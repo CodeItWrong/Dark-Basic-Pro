@@ -1,0 +1,261 @@
+rem Rigid Bodies Demo
+
+rem Init
+disable escapekey : set window layout 0,1,0
+
+rem Screenshot control
+global notextandlogos : notextandlogos=0
+
+rem Shows a scene with a collection of dynamic spheres
+gosub prepare_environment
+gosub prepare_media
+gosub prepare_physics_materials
+gosub prepare_simulation
+gosub play_simulation
+end
+
+`PREPARE_ENVIRONMET ===========================================================
+prepare_environment:
+   backdrop on
+   color backdrop rgb(128,128,128)
+   phy start
+   sync on
+   sync rate 0 : rem 60
+   autocam off
+   set directional light 0,0,0,1
+   position camera 10.0,14.0,-30.0
+   point camera 0.0,14.0,0.0
+   fog on
+   fog color rgb(128,32,0)
+   fog distance 300
+return
+
+`PREPARE_MEDIA ================================================================
+prepare_media:
+   load image "reflection.png",10
+   load image "skydome.png",11
+   load image "floortex.bmp",12
+   load image "supports.png",13
+
+   make object sphere 10,500.0,48,48
+   position object 10,0.0,-50.0,0.0
+   texture object 10,11
+   scale object texture 10,1.0,2.0
+   set object cull 10,0
+   set object light 10,0
+
+   if notextandlogos=0
+    load image "logo.png", 10000
+    sprite 1, 0, 600 - 60, 10000
+   endif
+
+return
+
+`PREPARE_PHYSICS_MATERIALS ====================================================
+prepare_physics_materials:
+   `'hardplastic' (fairly bouncy low friction rating)
+   phy make material 1,"hardsmooth"
+   phy set material dynamic friction 1,0.2
+   phy set material static friction 1,0.2
+   phy set material restitution 1,0.2
+   phy build material 1
+return
+
+`PREPARE_SIMULTION ============================================================
+prepare_simulation:
+
+   `make the floor object
+   make object box 100,200,1,200
+   position object 100,0,-0.5,0
+   texture object 100,12
+   scale object texture 100,4.0,4.0
+   phy make rigid body static box 100,1
+
+   `make our falldown construction
+   `the base
+   make object box 101,20,1,2
+   position object 101,0,0.5,0
+   texture object 101,13
+   set sphere mapping on 101,10
+   set object smoothing 101,100
+   phy make rigid body static box 101,1
+
+   `the sides
+   make object box 102,2,28,2
+   texture object 102,13
+   position object 102,-9,16.5,0
+   set sphere mapping on 102,10
+   set object smoothing 102,100
+   phy make rigid body static box 102,1
+
+   make object box 103,2,29.5,2
+   texture object 103,13
+   position object 103,9,15.75,0
+   set sphere mapping on 103,10
+   set object smoothing 103,100
+   phy make rigid body static box 103,1
+
+   `front and back panels
+   make object box 104,20,31,0.25
+   texture object 104,10
+   disable object zwrite 104
+   set sphere mapping on 104,10
+   set object smoothing 104,100
+   ghost object on 104,2
+   position object 104,0,15,1.175
+   color object 104,rgb(200,200,255)
+   fade object 104,250.0
+   phy make rigid body static box 104,1
+
+   make object box 105,20,31,0.25
+   texture object 105,10
+   disable object zwrite 105
+   set sphere mapping on 105,10
+   set object smoothing 105,100
+   ghost object on 105,2
+   position object 105,0,15,-1.175
+   color object 105,rgb(200,200,255)
+   fade object 105,250
+   phy make rigid body static box 105,1
+
+   make object box 106,2,2.0,4
+   position object 106,-12.0,1.0,1.0
+   color object 106,rgb(128,128,0)
+   set sphere mapping on 106,11
+   yrotate object 106,45.0
+   set object smoothing 106,100
+   phy make rigid body static box 106,1
+
+   `falldown planks
+   first_plank = 106
+   plank_height# = 1.5
+   height_step# = 3.1
+   od_ev = 1
+   od_dec = 0
+
+   for j = 1 to 8
+      make object box first_plank+j,10.5,0.5,1.99
+      texture object first_plank+j,13
+      set sphere mapping on first_plank+j,10
+      set object smoothing first_plank+j,100
+      if od_dec = 0
+         if od_ev = 1
+            zrotate object first_plank+j,6
+            position object first_plank+j,3.0,plank_height#,0.0
+            phy make rigid body static box first_plank+j,1
+            od_dec = 1
+            od_ev = 2
+         endif
+      endif
+      if od_dec = 0
+         if od_ev = 2
+            zrotate object first_plank+j,354
+            position object first_plank+j,-3.0,plank_height#,0.0
+            phy make rigid body static box first_plank+j,1
+            od_dec = 1
+            od_ev = 1
+         endif
+      endif
+      plank_height# = plank_height# + height_step#
+      od_dec = 0
+   next j
+
+   `prepare some variables to make our dynamic falling column of objects that
+   `show us how the collision boxes really behave.
+   ang# = 0.0
+   angstep# = 30
+   radius# = 7.0
+   h# = 30.0
+
+   for j = 2001 to 2601
+      make object sphere j,0.75
+      color object j,rgb(rnd(255),rnd(255),rnd(255))
+      set object specular j,rgb(255,255,255)
+      set object specular power j,255
+      set object ambient j,0
+      s = rnd(40) + 60
+      scale object j,s,s,s
+      h# = h# + 0.1
+      temp_x# = sin(ang#)*radius#
+      temp_z# = cos(ang#)*(radius#/20.0)
+      position object j,temp_x#,h#,temp_z#
+      phy make rigid body dynamic sphere j,1
+      ang# = wrapvalue(ang#)+angstep#
+   next j
+return
+
+`PLAY_SIMULATION ==============================================================
+play_simulation:
+   cam_counter# = 90.0
+   cam_speed# = 0.5
+   set text size 20
+   set text font "verdana"
+   repeat
+      if notextandlogos=0
+       center text screen width()/2,20,"screen frame rate is "+str$(screen fps())+" fps"
+       center text screen width()/2,40,"use the mouse to move around the ball dropper"
+       center text screen width()/2,60,"press the left mouse button to drop in a few more balls"
+      endif
+      if mouseclick()=1
+         angstep# = 30
+         radius# = 7.0
+         h# = 30.0
+         if replacejj<2001 then replacejj=2001
+         replacejj=replacejj+1
+         if replacejj>2600 then replacejj=2001
+         j=replacejj
+         phy delete rigid body j
+         s = rnd(40) + 60
+         scale object j,s,s,s
+         h# = h# + 0.1
+         temp_x# = sin(ang#)*radius#
+         temp_z# = cos(ang#)*(radius#/20.0)
+         position object j,temp_x#,h#,temp_z#
+         phy make rigid body dynamic sphere j,1
+         ang# = wrapvalue(ang#)+angstep#
+      endif
+      camrot# = 180-(((mousex()-400)/400.0)*180)
+      camx# = sin(camrot#)*20.0
+      camy# = cos(camrot#)*30.0
+      position camera camx#,30+(300-mousey())/10.0,camy#
+      point camera 0.0,14.0,0.0
+      phy update
+      sync
+   until escapekey() = 1
+   endsplash()
+return
+
+rem Splash used to advertise DarkPHYSICS special offer
+function endsplash()
+ for o=1 to 655000
+  if object exist(o)=1
+   delete object o
+  endif
+ next o
+ backdrop off
+ if notextandlogos=0 then delete sprite 1
+ set current bitmap 0
+ load bitmap "splash.jpg"
+ get image 1,106,459,419,507,1
+ while mouseclick()<>0 : endwhile
+ while escapekey()<>0 : endwhile
+ while mouseclick()=0 and escapekey()=0
+  over=0
+  if mousex()>=106 and mousex()<419
+   if mousey()>=459 and mousey()<=507
+    over=1
+   endif
+  endif
+  if over=1
+   paste image 1,107,460,1
+  else
+   paste image 1,106,459,1
+  endif
+  sync
+ endwhile
+ if over=1
+  cls : sync
+  execute file "http://www.thegamecreators.com/physxoffer","",""
+ endif
+endfunction
+

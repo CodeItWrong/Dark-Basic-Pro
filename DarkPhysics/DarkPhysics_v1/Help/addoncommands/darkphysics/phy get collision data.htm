@@ -1,0 +1,86 @@
+<html>
+<head>
+<title>PHY GET COLLISION DATA</title>
+</head>
+<body background='gfx\dbpro_bg.jpg'>
+
+<!-- Page Header -->
+<table width='100%' border='0' cellpadding='0' cellspacing='0'>
+<tr><td align='center'><img src='gfx\dbph_head_1.jpg' width='340' height='51'></td></tr>
+</table>
+
+<table width='100%' border='0' cellpadding='0' cellspacing='0'>
+<tr><td>
+<!-- Function Head -->
+<font face="Verdana" size="5">
+<b>
+PHY GET COLLISION DATA
+</b>
+<font face="Verdana" size="2">
+<p>
+This command is used to find out whether any collisions have taken place between any rigid bodies in the simulation.
+</p>
+</font>
+
+<!-- Syntax -->
+<table width='100%' cellpadding='2'>
+<tr><td bgcolor='#0d4283'><font color='#ffffff' size='3'><b>&nbsp;
+Syntax
+</b></font></td></tr>
+</table>
+<font face="Verdana" size="2">
+<pre>
+integer = phy get collision data ( )    
+
+</pre>
+</font>
+
+<!-- Parameters -->
+<table width='100%' cellpadding='2'>
+<tr><td bgcolor='#0d4283'><font color='#ffffff' size='3'><b>&nbsp;
+Parameters
+</b></font></td></tr>
+</table>
+<font face="Verdana" size="2">
+<BR>
+<pre>This command does not need any parameters.</pre>
+</font>
+
+<!-- Returns -->
+<table width='100%' cellpadding='2'>
+<tr><td bgcolor='#0d4283'><font color='#ffffff' size='3'><b>&nbsp;
+Returns
+</b></font></td></tr>
+</table>
+<font face="Verdana" size="2">
+<p>
+ a value of 1 indicates collision data exists and a value of 0 indicates there is no collision data to be processed
+
+</p>
+</font>
+
+<!-- Description -->
+<table width='100%' cellpadding='2'>
+<tr><td bgcolor='#0d4283'><font color='#ffffff' size='3'><b>&nbsp;
+Description
+</b></font></td></tr>
+</table>
+<font face="Verdana" size="2"> 
+<p>
+ If the command returns a value of 1 then it means collision data is available and you can proceed to find out what collisions have taken place.  The recommended usage of this command is as follows:  call phy get collision data as part of a while loop inside the while loop extract any data about the collision  In code this would look like:   while phy get collision data ( ) = 1  ` find out what has happened...  endwhile  Whenever a collision takes place the data is internally buffered so we need to use a while loop to find out what has happened. <br><br>To clarify this further take the following scenario:  at the start of the game no collisions have taken place after 5 seconds objects 1 and 2 collide after 10 seconds objects 3 and 4 collide with each other and objects 5 and 6 also collide  When the code first encounters our while loop the command phy get collision data will return a value of 0 as no collisions have been registered. The condition for the while loop is false so this block of code is not executed.  In the second stage objects 1 and 2 collide with each other. When the time comes to perform the while loop the command phy get collision data returns a value of 1 indicating we have some collision data. The condition for the while loop is true so the code jumps into the loop and we can then call other commands to find out what has happened and take any action if required. After the first run of the while loop phy get collision data is called again but this time returns 0 as there is no further collision data to process. The code jumps out of the while loop and continues running through the rest of the program.  In the final stage we end up with objects 3 and 4 colliding and objects 5 and 6 colliding at the same time. When the code executes our while loop phy get collision data returns 1 indicating we have some data to process. We can find out what objects were involved in a collision inside the while loop. After the first run of the while loop phy get collision data is called again and returns 1 as we still have more data to process &#8211; the collision between objects 5 and 6. The while loop is entered again and we follow through the same steps of finding out what objects were involved.  By using the while loop we can process any collisions concurrently and this allows us to act at the time of the collision.  if we do not use while loop and perhaps instead decided to use an if statement then we can run into trouble:   if phy get collision data ( ) = 1  ` find out what has happened...  endif  Imagine the previous scenario again but this time on a much bigger scale with many more objects colliding. If your code to check collision data only runs 1 per program loop then by the time your code gets notified a collision has taken place a certain amount of time may have passed and result in there being a delay between seeing the collision on screen and your code reacting to it which is why it is advisable to use the approach demonstrated with the while loop.  
+
+</p>
+</font>
+
+<!-- Function Footer -->
+</font>
+</td></tr></table>
+<br>
+
+<!-- Page Footer -->
+<table width='100%' border='0' cellpadding='0' cellspacing='0'>
+<tr><td align='center'><img src='gfx\dbph_foot_1.jpg' width='340' height='38'></td></tr>
+</table>
+</body>
+</html>
+

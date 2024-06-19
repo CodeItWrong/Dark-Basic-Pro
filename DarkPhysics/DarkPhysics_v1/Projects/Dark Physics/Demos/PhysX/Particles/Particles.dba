@@ -1,0 +1,193 @@
+
+rem demonstrates particle usages comparing software to hardware
+
+rem Init
+sync on : sync rate 0 : autocam off
+set text font "Verdana"
+ink rgb(255,255,255),0
+
+rem preare counters
+tmlast as double integer
+tmcode as double integer
+tmphysics as double integer
+tmvisuals as double integer
+
+rem Camera
+set camera range 1,15000
+position camera -25,15,-75
+point camera 10,5,30
+set normalization on
+set ambient light 5
+
+rem settings
+hardwaremode=0 : particlemax=200
+
+rem Logo sprite
+load image "logo.png", 100000 : sprite 1,0,screen height()-60,100000
+size sprite 1,screen width(),60
+
+rem SW/HW loop
+do
+
+rem Setup physics
+gosub _physics_init
+gosub _physics_setup
+
+rem Main
+while spacekey()=0
+ `
+ rem give the CPU some game logic to do (faked)
+ tmlast=perftimer()
+ for t=1 to 10000 : a#=sqrt(b#/c#/d#/e#/f#/g#) : next t
+ if tmdelay=0 then tmcode=perftimer()-tmlast
+ `
+ rem camera movement
+ if upkey()=1 then move camera 1
+ if downkey()=1 then move camera -1
+ angy# = camera angle y()
+ angx# = camera angle x()
+ xrotate camera 0
+ if leftkey()=1 then yrotate camera angy#-90 : move camera 1 : yrotate camera angy#
+ if rightkey()=1 then yrotate camera angy#+90 : move camera 1 : yrotate camera angy#
+ yrotate camera angy#+mousemovex()/2.0
+ xrotate camera angx#+mousemovey()/2.0
+ set point light 0,camera position x(),camera position y(),camera position z()
+ `
+ rem prompts
+ if videomode=0
+  swhw$="SOFTWARE"
+  center text screen width()/2,20,"PHYSX IN "+swhw$+"  PARTICLES:"+str$(particlemax)+"  FPS:"+str$(screen fps())+"  CODE:"+str$(tmcode/1000)+"  PHYSICS:"+str$(tmphysics/1000)+"  VISUALS:"+str$(tmvisuals/1000)
+  if physx()=1
+   center text screen width()/2,40,"PRESS SPACE TO TOGGLE BETWEEN SOFTWARE AND HARDWARE"
+  else
+   center text screen width()/2,40,"PHYSX SOFTWARE SUPPORT ONLY"
+  endif
+  if inkey$()="v" then videomode=1 : set text size 50
+ else
+  text 40,20,"FRAME RATE : "+str$(10+screen fps())
+ endif
+ `
+ rem update simulation
+ tmlast=perftimer()
+  phy update 1
+  phy update 0
+
+ if tmdelay=0 then tmphysics=perftimer()-tmlast
+ `
+ rem visual update
+ tmlast=perftimer()
+ sync
+ if tmdelay=0 then tmvisuals=perftimer()-tmlast
+ `
+ rem timer handler
+ inc tmdelay : if tmdelay>30 then tmdelay=0
+ `
+endwhile
+while spacekey()<>0 : endwhile
+
+rem Prompt
+set text size 30
+center text screen width()/2,screen height()/2,"RESETTING SCENE" : sync
+set text size 12
+
+rem otggle hardware flag
+inc hardwaremode : if hardwaremode>2 then hardwaremode=0
+if hardwaremode=0 then particlemax=200
+if hardwaremode=1 then particlemax=2000
+if hardwaremode=2 then particlemax=2000
+
+rem free usages
+phy update 1
+phy delete emitter 1
+delete objects 1,objid
+
+phy end
+
+rem SW/HW endloop
+loop
+end
+
+_physics_init:
+
+ rem Start the Physics Engine
+ if hardwaremode=2
+  if physx()=1
+   phy start 1,0,1
+  else
+   hardwaremode=1
+   phy start
+  endif
+ else
+  phy start
+ endif
+ phy set skin width 0.001
+
+ phy update 0
+
+ `
+return
+
+_physics_setup:
+
+rem make skybox
+set dir "Sky"
+load object "ngt.X",2
+set object light 2,0
+scale object 2,20000,20000,20000
+yrotate object 2,90
+set object texture 2,2,1
+set object cull 2,0
+set dir ".."
+
+rem start obj
+objid=3
+
+rem make non-bouncy material
+phy make material 1,"brick"
+phy set material restitution 1,0
+phy build material 1
+
+rem load scene
+set dir "scene"
+load object "lightmapped.dbo",objid
+scale object objid,20,20,20 : position object objid,-80,0,40
+set dir ".."
+
+rem complex high-polygon scenes should not be given to hardware
+rem make a roof
+inc objid : objs=objid : make object box objid,80,2.5,60 : position object objid,0,39,10 : phy make rigid body static box objid,1
+rem make three walls
+inc objid : make object box objid,2.5,39,60 : position object objid,-40,19.5,10 : phy make rigid body static box objid,1
+inc objid : make object box objid,2.5,39,60 : position object objid, 40,19.5,10 : phy make rigid body static box objid,1
+inc objid : make object box objid,80,39,2.5 : position object objid,  0,19.5,40 : phy make rigid body static box objid,1
+rem make front lintles
+inc objid : make object box objid,80,4,2.5 : position object objid, 0,36,-20 : phy make rigid body static box objid,1
+inc objid : make object box objid,80,9,2.5 : position object objid, 0,19.5,-20 : phy make rigid body static box objid,1
+rem make front window columns
+inc objid : make object box objid,12,10,2.5 : position object objid, -20,29,-20 : phy make rigid body static box objid,1
+inc objid : make object box objid,12,10,2.5 : position object objid,   0,29,-20 : phy make rigid body static box objid,1
+inc objid : make object box objid,12,10,2.5 : position object objid,  20,29,-20 : phy make rigid body static box objid,1
+inc objid : make object box objid, 6,10,2.5 : position object objid, -37,29,-20 : phy make rigid body static box objid,1
+inc objid : make object box objid, 6,10,2.5 : position object objid,  37,29,-20 : phy make rigid body static box objid,1
+rem make lower columns
+inc objid : make object box objid,26,15,2.5 : position object objid, -27,7.5,-20 : phy make rigid body static box objid,1
+inc objid : make object box objid,46,15,2.5 : position object objid, 17,7.5,-20 : phy make rigid body static box objid,1
+for o=objs to objid : hide object o : next o
+
+rem make smoke inside building
+phy make smoke emitter 1, particlemax, 0, 0.1, 0
+phy set emitter life span 1,0.002
+
+rem Size the smoke and growth
+phy set emitter collision scale 1,0.1
+phy set emitter size 1,0.1
+phy set emitter max size 1,4.0
+phy set emitter growth rate 1,4
+
+rem texture and ghost the particles
+load image "media\smokepuff.tga", 1
+texture object 1, 1
+ghost object on 1, 0
+
+return
+

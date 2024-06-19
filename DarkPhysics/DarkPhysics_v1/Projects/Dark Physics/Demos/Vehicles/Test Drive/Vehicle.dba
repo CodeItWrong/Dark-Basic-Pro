@@ -1,0 +1,200 @@
+rem Vehicle Physics
+
+rem Init
+phy start
+sync on : sync rate 60
+autocam off : color backdrop 0
+set text font "verdana"
+set text size 24
+
+rem Lights and camera
+make light 1 : set directional light 1, -5, -5, 5
+position camera -20, 20, -25 : point camera 0, 10, 0
+
+rem Load scene
+set dir "Scene"
+load object "levelbank\testlevel\universe.dbo",1
+scale object 1,10,10,10 : phy make rigid body static mesh 1
+set dir ".."
+
+rem Load buggy
+load object "beach.x", 2
+load image "beachBu2.tga",2
+load image "dbprocubemap.dds",3
+texture object 2,2 : set blend mapping on 2,1,3,2,16
+position object 2, 15, 4, -25
+offset limb 2,0,0,-0.5,0
+rotate limb 2,0,0,-90,0
+
+rem Create vehicle physics body
+width# = 0.75
+height# = 0.4
+length# = 2.2
+wheelX# = 1.1
+wheelY# = 0.3
+wheelZ# = 1.5
+radius# = 0.6
+wheelHeight# = 0.2
+
+rem Be aware the vehicle width and length orientation
+phy create vehicle 2
+phy add vehicle body 2, length#, height#, width#, 0.0, height#, 0.0
+phy add vehicle body 2, width#, height#, width#, 0.0, height#*2, 0.0
+phy add vehicle wheel 2, 5,  wheelZ#, wheelY#,  wheelX#, radius#, wheelHeight#, 0, 0
+phy add vehicle wheel 2, 7,  wheelZ#, wheelY#, -wheelX#, radius#, wheelHeight#, 0, 1
+phy add vehicle wheel 2, 3, -wheelZ#, wheelY#, -wheelX#, radius#, wheelHeight#, 1, 0
+phy add vehicle wheel 2, 9, -wheelZ#, wheelY#,  wheelX#, radius#, wheelHeight#, 1, 1
+phy set vehicle max motor 2, 200.0
+steeringDelta# = 0.1 : phy set vehicle steering delta 2, steeringDelta#
+phy set vehicle max steering angle 2, 0.4
+phy set vehicle auto 2, 0
+phy set vehicle wheel multiplier 2,0
+phy set vehicle suspension spring 2,100
+phy build vehicle 2
+
+rem follower object invisible
+make object sphere 3,10 : hide object 3
+
+rem Particles from exhaust
+phy make smoke emitter 4, 32, 10, 5, -10
+load image "smoke2.bmp",4
+texture object 4, 4
+ghost object on 4, 0
+
+rem Simple crates
+objid=10 : load object "crate_h.x",10
+scale object objid,4,4,8
+make mesh from object 10,10
+delete object 10
+load image "crate_h_d2.dds",10
+make object 10,10,10
+hide object 10
+for y=0 to 9
+ for z=0 to 7
+  inc objid : instance object objid,10
+  position object objid,70,y,-65+(z*3)
+  phy make rigid body dynamic box objid
+  phy set rigid body mass objid,5
+ next z
+next y
+
+rem Some sounds
+load sound "Sounds\idle.wav",1 : loop sound 1
+load sound "Sounds\bump.wav",2
+
+rem Load logo sprite
+load image "logo.png", 100000
+sprite 1, 0, 600 - 60, 100000
+
+rem Main
+do
+ `
+ rem Follow buggy
+ position object 3,object position x(2),object position y(2),object position z(2)
+ set object to object orientation 3,2
+ move object 3,-10
+ point object 3,object position x(2),object position y(2),object position z(2)
+ dist#=5.0 : high#=2.5 : angle#=object angle y(3)+90
+ set camera to follow object position x(2), object position y(2), object position z(2), angle#, dist#, high#, 1, 0
+ `
+ rem Control buggy
+ phy set vehicle motor force 2,0.0
+ gosub driveCar
+ `
+ rem Place exhaust smoke
+ if boost>1
+  exy#=object position y(2)
+  exx#=newxvalue(object position x(2),angle#,-1.0)
+  exz#=newzvalue(object position z(2),angle#,-1.0)
+  phy set emitter position 4,exx#,exy#-(abs(boost*0.1)),exz#
+ else
+  phy set emitter position 4,-50,-50,50
+ endif
+ `
+ rem Prompt
+ center text screen width()/2,30,"ARROWKEYS TO DRIVE   SPACE TO BOOST & SELF-RIGHT"
+ `
+ rem Update physics and screen
+ phy update
+ sync
+ `
+loop
+
+driveCar:
+ `
+ rem movement
+ key = 0 : force#=0.0
+ if upkey ( ) = 1 then force#=300 : key = 1 : phy set vehicle wheel multiplier 2,50
+ if downkey ( ) = 1 then force#=-200.0 : key = 1 : phy set vehicle wheel multiplier 2,-50
+ if spacekey ( ) = 1 and boost=0 then boost=50 : forcenoise#=2000.0
+ if boost>1 then dec boost : force#=1200 : key = 1 : phy set vehicle wheel multiplier 2,200
+ if spacekey ( ) = 0 and boost=1 then boost=0
+ if key = 0 then force#=0.0
+ phy set vehicle motor force 2,force#
+ if force#>0
+  forcenoise#=forcenoise#+(force#/10.0)
+  if forcenoise#>4000.0 then forcenoise#=4000.0
+ else
+  if force#<0
+   forcenoise#=forcenoise#-20.0
+   if forcenoise#<-500.0 then forcenoise#=-500.0
+  else
+   forcenoise#=forcenoise#-50.0
+   if forcenoise#<0.0 then forcenoise#=0.0
+  endif
+ endif
+ `
+ rem steering
+ steeringAngle# = phy get vehicle steering angle ( 2 )
+ key = 0
+ if keystate ( 205 ) = 1
+  if steeringAngle# > ( -1.0 + steeringDelta# )
+   steeringAngle# = steeringAngle# - ( steeringDelta# / 2 )
+  endif
+  key = 1
+ endif
+ if keystate ( 203 ) = 1
+  if steeringAngle# < ( 1.0 - steeringDelta# )
+   steeringAngle# = steeringAngle# + ( steeringDelta# / 2 )
+  endif
+  key = 1
+ endif
+ if key = 0
+  if steeringAngle# > 0.0
+   steeringAngle# = steeringAngle# - steeringDelta# * 2
+   if steeringAngle# < 0
+    steeringAngle# = 0.0
+   endif
+  endif
+  if steeringAngle# < 0.0
+   steeringAngle# = steeringAngle# + steeringDelta# * 2
+   if steeringAngle# > 0
+    steeringAngle# = 0.0
+   endif
+  endif
+ endif
+ phy set vehicle steering angle 2, steeringAngle#
+ phy set vehicle steering value 2, -( steeringAngle# * 45 )
+ `
+ rem set sound based on vehicle speed
+ set sound speed 1,18000+(forcenoise#*10)
+ `
+ rem collision feedback
+ zerohit=0
+ while phy get collision data ( )
+  a = phy get collision object a ( )
+  b = phy get collision object b ( )
+  if (a=2 and b>10) or (b=2 and a>10)
+   rem buggy object(2) hits any crate object(>10)
+   if vehiclenothitting=1
+    forcenoise#=forcenoise#/2.0
+    if sound playing(2)=0 then play sound 2 : set sound speed 2,22000
+    vehiclenothitting=0
+   endif
+   zerohit=1
+  endif
+ endwhile
+ if zerohit=0 then vehiclenothitting=1
+ if zerohit=1 then vehiclenothitting=0
+ `
+return

@@ -1,0 +1,91 @@
+<html>
+<head>
+<title>PHY START</title>
+</head>
+<body background='gfx\dbpro_bg.jpg'>
+
+<!-- Page Header -->
+<table width='100%' border='0' cellpadding='0' cellspacing='0'>
+<tr><td align='center'><img src='gfx\dbph_head_1.jpg' width='340' height='51'></td></tr>
+</table>
+
+<table width='100%' border='0' cellpadding='0' cellspacing='0'>
+<tr><td>
+<!-- Function Head -->
+<font face="Verdana" size="5">
+<b>
+PHY START
+</b>
+<font face="Verdana" size="2">
+<p>
+Used to initialise the physics engine.
+</p>
+</font>
+
+<!-- Syntax -->
+<table width='100%' cellpadding='2'>
+<tr><td bgcolor='#0d4283'><font color='#ffffff' size='3'><b>&nbsp;
+Syntax
+</b></font></td></tr>
+</table>
+<font face="Verdana" size="2">
+<pre>
+phy start simulationType, simulationSceneType, simulationFlags
+
+</pre>
+</font>
+
+<!-- Parameters -->
+<table width='100%' cellpadding='2'>
+<tr><td bgcolor='#0d4283'><font color='#ffffff' size='3'><b>&nbsp;
+Parameters
+</b></font></td></tr>
+</table>
+<font face="Verdana" size="2">
+<BR>
+<pre>simulationType 
+</pre><blockquote> is used to specify whether the simulation will run in software or hardware, to use software mode specify 0 and to use hardware mode specify 1
+<br><br></blockquote><pre>simulationSceneType 
+</pre><blockquote> controls what kind of scene will be used, 0 represents a rigid body scene, 1 represents a fluid scene, 2 represents a fluid scene in software and 3 represents a cloth scene
+<br><br></blockquote><pre>simulationFlags
+</pre><blockquote> use a value of 1 to enable multi threading
+<br><br></blockquote>
+</font>
+
+<!-- Returns -->
+<table width='100%' cellpadding='2'>
+<tr><td bgcolor='#0d4283'><font color='#ffffff' size='3'><b>&nbsp;
+Returns
+</b></font></td></tr>
+</table>
+<font face="Verdana" size="2">
+<p>
+This command does not return a value.
+</p>
+</font>
+
+<!-- Description -->
+<table width='100%' cellpadding='2'>
+<tr><td bgcolor='#0d4283'><font color='#ffffff' size='3'><b>&nbsp;
+Description
+</b></font></td></tr>
+</table>
+<font face="Verdana" size="2"> 
+<p>
+ The command Phy start must be called before attempting to use any other physics command ( with the exception of debug commands such as phy enable debug ). Failure to do this will result in runtime errors when calling physics commands.<br><br>The option to choose the placement of this command can be useful for resource management. Examples of this include having a game which starts off with several menu screens. When these screens are displayed it is not necessary to have initialised the physics engine and have it running as it is not in use. So in this case it may be preferable to call phy start after the menu screens have been displayed and at the time of setting up and entering the game level. Alternatively you may simply like to place the call to phy start at the beginning of your program and have it ready and waiting for use right from the offset. <br><br>Note that the parameters for phy start are optional so you can simply call phy start passing in no parameters if you choose.
+
+</p>
+</font>
+
+<!-- Function Footer -->
+</font>
+</td></tr></table>
+<br>
+
+<!-- Page Footer -->
+<table width='100%' border='0' cellpadding='0' cellspacing='0'>
+<tr><td align='center'><img src='gfx\dbph_foot_1.jpg' width='340' height='38'></td></tr>
+</table>
+</body>
+</html>
+

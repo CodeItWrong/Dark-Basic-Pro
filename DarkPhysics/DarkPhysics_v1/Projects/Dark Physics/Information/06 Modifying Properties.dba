@@ -1,0 +1,71 @@
+
+` modifying properties
+
+autocam off
+sync on
+sync rate 60
+randomize timer ( )
+make light 1
+set directional light 1, -5, -5, 5
+phy start
+
+make object box 1, 200, 1, 200
+position object 1, 0, -0.5, 0
+
+make object box 2, 200, 60, 1
+position object 2, 0, 30, 100
+
+make object box 3, 200, 1, 200
+position object 3, 0, 60, 0
+
+make object box 4, 1, 60, 200
+position object 4, -100, 30, 0
+
+make object box 5, 1, 60, 200
+position object 5, 100, 30, 0
+
+make object box 6, 200, 60, 1
+position object 6, 0, 30, -100
+
+for ID  = 1 to 6
+   ghost object on ID
+   color object ID, rgb ( rnd ( 100 ), rnd ( 100 ), rnd ( 100 ) )
+   phy make rigid body static box ID
+next ID
+
+for ID = 7 to 600
+   make object sphere ID, 4
+   position object ID, -90 + rnd ( 180 ), 5, -90 + rnd ( 180 )
+   color object ID, rgb ( rnd ( 255 ), rnd ( 255 ), rnd ( 255 ) )
+   set object specular ID, rgb ( rnd ( 255 ), rnd ( 255 ), rnd ( 255 ) )
+   set object specular power ID, 255
+   set object ambient ID, 0
+   phy make rigid body dynamic sphere ID
+next ID
+
+load image "stripe5.png", 1
+make object sphere 601, 550, 48, 48
+texture object 601, 1
+scale object texture 601, 6, 6
+set object cull 601, 0
+
+position camera -155, 125, -170
+rotate camera 30, 40, 0
+
+min = -100
+max = 200
+
+do
+   if rnd ( 200 ) = 100
+      for ID = 7 to 600
+         phy set rigid body linear velocity ID, min + rnd ( max ), min + rnd ( max ), min + rnd ( max )
+      next ID
+   endif
+
+   rotate object 601, object angle x ( 601 ) - 0.02, object angle y ( 601 ) - 0.05, object angle z ( 601 ) - 0.08
+
+   phy update
+   sync
+loop
+
+

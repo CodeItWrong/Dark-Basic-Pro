@@ -1,0 +1,61 @@
+
+` shows how a point in plane joint can be used
+
+` set up program properties
+phy start
+autocam off
+sync on
+sync rate 60
+color backdrop 0
+position camera 0, 20, -70
+make light 1
+set directional light 1, -5, -5, 5
+
+rem stripe textures
+load image "stripe5.png",8
+make object sphere 8,400,48,48
+texture object 8,8
+scale object texture 8,6,6
+set object cull 8,0
+load image "stripe6.png",1
+
+` create ground object
+make object box 1, 50, 1, 50
+texture object 1,1
+phy make rigid body static box 1
+
+` set up dynamic cube
+make object cube 2, 5
+position object 2, -5, 5, 0
+color object 2, rgb ( rnd ( 255 ), rnd ( 255 ), rnd ( 255 ) )
+set object specular 2, rgb ( rnd ( 255 ), rnd ( 255 ), rnd ( 255 ) )
+set object ambient 2, 255
+set object specular power 2, 255
+phy make rigid body dynamic box 2
+
+` make point in plane joint
+phy make point in plane joint 1, 1, 2, 0, 20, 0, 0, -1, 0
+
+` display Dark Physics logo
+load image "logo.png", 100000
+sprite 1, 0, 600 - 60, 100000
+
+` main program loop
+do
+   ` display instructions
+   set cursor 0, 0
+   print "Point in plane joint example"
+   print "Press space to apply linear velocity to the object"
+
+   ` apply velocity
+   if spacekey ( ) = 1
+      phy set rigid body linear velocity 2, 0, 10, 0
+   endif
+
+   ` update simulation and sceen
+   phy update
+   sync
+loop
+
+
+

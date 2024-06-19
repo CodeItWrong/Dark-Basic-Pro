@@ -1,0 +1,105 @@
+<html>
+<head>
+<title>PHY MAKE PARTICLE EMITTER</title>
+</head>
+<body background='gfx\dbpro_bg.jpg'>
+
+<!-- Page Header -->
+<table width='100%' border='0' cellpadding='0' cellspacing='0'>
+<tr><td align='center'><img src='gfx\dbph_head_1.jpg' width='340' height='51'></td></tr>
+</table>
+
+<table width='100%' border='0' cellpadding='0' cellspacing='0'>
+<tr><td>
+<!-- Function Head -->
+<font face="Verdana" size="5">
+<b>
+PHY MAKE PARTICLE EMITTER
+</b>
+<font face="Verdana" size="2">
+<p>
+Creates a new particle emitter.
+</p>
+</font>
+
+<!-- Syntax -->
+<table width='100%' cellpadding='2'>
+<tr><td bgcolor='#0d4283'><font color='#ffffff' size='3'><b>&nbsp;
+Syntax
+</b></font></td></tr>
+</table>
+<font face="Verdana" size="2">
+<pre>
+phy make particle emitter ID, maximum, emit rate#, x#, y#, z#, speed#, x dir#, y dir#, z dir#  
+
+</pre>
+</font>
+
+<!-- Parameters -->
+<table width='100%' cellpadding='2'>
+<tr><td bgcolor='#0d4283'><font color='#ffffff' size='3'><b>&nbsp;
+Parameters
+</b></font></td></tr>
+</table>
+<font face="Verdana" size="2">
+<BR>
+<pre>ID 
+</pre><blockquote> identification number of the emitter object  
+<br><br></blockquote><pre>maximum
+</pre><blockquote> maximum number of particles to be used by the emitter, higher particle counts will slow the simulation down, for software usage it is recommended to keep this number to 500 or lower whereas the PhysX PPU is capable of handling much greater amounts of particles  
+<br><br></blockquote><pre>emit rate#
+</pre><blockquote> the time lapse between particles getting emitted, use smaller values to emit particles faster and higher values to emit particles slower  
+<br><br></blockquote><pre>x#
+</pre><blockquote> position of emitter on the X axis  
+<br><br></blockquote><pre>y#
+</pre><blockquote> position of emitter on the Y axis  
+<br><br></blockquote><pre>z#
+</pre><blockquote> position of emitter on the Z axis  
+<br><br></blockquote><pre>speed#
+</pre><blockquote> initial velocity of particles when they are emitted, higher values will give the particles a lot of velocity and they will move very fast upon being emitted whereas lower values will have the opposite effect  
+<br><br></blockquote><pre>x dir# 
+</pre><blockquote> direction particles are emitted on the X axis  
+<br><br></blockquote><pre>y dir# 
+</pre><blockquote> direction particles are emitted on the Y axis  
+<br><br></blockquote><pre>z dir# 
+</pre><blockquote> direction particles are emitted on the Z axis  
+<br><br></blockquote>
+</font>
+
+<!-- Returns -->
+<table width='100%' cellpadding='2'>
+<tr><td bgcolor='#0d4283'><font color='#ffffff' size='3'><b>&nbsp;
+Returns
+</b></font></td></tr>
+</table>
+<font face="Verdana" size="2">
+<p>
+This command does not return a value.
+</p>
+</font>
+
+<!-- Description -->
+<table width='100%' cellpadding='2'>
+<tr><td bgcolor='#0d4283'><font color='#ffffff' size='3'><b>&nbsp;
+Description
+</b></font></td></tr>
+</table>
+<font face="Verdana" size="2"> 
+<p>
+ A particle emitter is an object that will emit particles into space. When an emitter has been created it will be inserted into the simulation straight away and then properties can be set such as its linear velocity. Note that the ID numbers used by emitters are shared with those of Basic 3D as an emitter is essentially a Basic 3D object.
+
+</p>
+</font>
+
+<!-- Function Footer -->
+</font>
+</td></tr></table>
+<br>
+
+<!-- Page Footer -->
+<table width='100%' border='0' cellpadding='0' cellspacing='0'>
+<tr><td align='center'><img src='gfx\dbph_foot_1.jpg' width='340' height='38'></td></tr>
+</table>
+</body>
+</html>
+

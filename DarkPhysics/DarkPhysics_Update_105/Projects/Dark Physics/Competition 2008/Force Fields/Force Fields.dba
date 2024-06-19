@@ -1,0 +1,148 @@
+rem Force Fields Demo
+
+rem Screenshot control
+global notextandlogos : notextandlogos=0
+
+rem Start the physics simulation
+phy start
+
+rem Set the sync on and sync rate to 0 so we control the updating of the screen and it is drawn to as fast as possible
+sync on : sync rate 0
+
+rem Make background
+load image "stripe5.png",1000
+make object sphere 1000,400,48,48
+texture object 1000,1000
+scale object texture 1000,6,6
+set object cull 1000,0
+rotate object 1000,0,0,90
+load image "stripe6.png", 3
+make object box 1, 100, 1, 100
+phy make rigid body static box 1
+texture object 1, 3
+
+rem Vars
+ID = 2
+xpos# = -2
+ypos# = 1
+a# = 0.0
+b# = 0.0
+c# = 0.0
+
+rem Create blocks
+for x = 0 to 10
+   for y = 0 to 10
+      make object cube ID, 1
+      color object ID, rgb ( rnd ( 255 ), rnd ( 255 ), rnd ( 255 ) )
+      set object specular ID, rgb ( rnd ( 255 ), rnd ( 255 ), rnd ( 255 ) )
+      set object specular power ID, 20
+      set object ambient ID, 0
+      position object ID, xpos#, ypos#, 0
+      phy make rigid body dynamic box ID
+      phy sleep rigid body ID
+      xpos# = xpos# + 1
+      inc ID
+   next y
+   xpos# = -2
+   ypos# = ypos# + 1
+next x
+
+rem Turn autocam off
+autocam off
+
+rem Position the camera so we can view the whole scene
+position camera 3, 10, -20
+
+rem Create a light
+make light 1 : set directional light 1, -5,-5,5
+
+rem Display Dark Physics logo
+if notextandlogos=0
+ load image "logo.png", 100000
+ sprite 1, 0, 600 - 60, 100000
+endif
+
+rem Ball
+make object sphere 500, 2
+position object 500, -10, 6, 0
+phy make rigid body dynamic sphere 500
+phy set rigid body kinematic 500, 1
+texture object 500,1000
+
+rem Make force field
+phy create force field 1
+phy set force field coordinates 1, 1
+phy set force field constant 1, -800.0, 2000.0, 0.0
+phy set force field rigid body 1, 500
+phy build force field 1
+phy add force field sphere 1, 0, 0.0, 0.0, 0.0, 4
+
+rem Coordinate of ball
+fX# = -10 : fY# = 6
+
+rem Text font
+set text font "verdana" : set text size 20
+
+rem Main loop
+position mouse 100,100
+disable escapekey
+set window layout 0,1,0
+while escapekey()=0
+ `
+ rem Prompt
+ set cursor 0, 0
+ if notextandlogos=0
+  center text 400,20,"screen frame rate is "+str$(screen fps())+" fps"
+  center text 400,40,"use the mouse to move the magnetic sphere"
+ endif
+ `
+ rem Control ball
+ phy set rigid body kinematic position 500, fX#, fY#, 0
+ scroll object texture 500,0.01,0.02
+ fX#=curvevalue(3.0+(mousex()-400)/25.0,fX#,10.0)
+ fY#=curvevalue(7.0+(300-mousey())/25.0,fY#,10.0)
+ `
+ rem Update the physics
+ phy update
+ `
+ rem Now update the screen
+ sync
+ `
+endwhile
+endsplash()
+end
+
+rem Splash used to advertise DarkPHYSICS special offer
+function endsplash()
+ for o=1 to 655000
+  if object exist(o)=1
+   delete object o
+  endif
+ next o
+ backdrop off
+ if notextandlogos=0 then delete sprite 1
+ set current bitmap 0
+ load bitmap "splash.jpg"
+ get image 1,106,459,419,507,1
+ while mouseclick()<>0 : endwhile
+ while escapekey()<>0 : endwhile
+ while mouseclick()=0 and escapekey()=0
+  over=0
+  if mousex()>=106 and mousex()<419
+   if mousey()>=459 and mousey()<=507
+    over=1
+   endif
+  endif
+  if over=1
+   paste image 1,107,460,1
+  else
+   paste image 1,106,459,1
+  endif
+  sync
+ endwhile
+ if over=1
+  cls : sync
+  execute file "http://www.thegamecreators.com/physxoffer","",""
+ endif
+endfunction
+
