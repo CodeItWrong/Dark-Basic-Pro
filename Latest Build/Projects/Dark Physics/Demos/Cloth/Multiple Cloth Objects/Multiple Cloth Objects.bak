@@ -1,0 +1,101 @@
+
+` shows how to use multiple cloth objects in a scene
+
+` set up the project
+autocam off
+sync on
+sync rate 60
+color backdrop 0
+set ambient light 30
+position camera 22, 15, 20
+rotate camera 30, 210, 0
+phy start
+
+` load images for use later on
+load image "rug512.bmp", 1
+load image "banner_horse.dds", 2
+
+` create background sphere
+load image "stripe5.png",8
+make object sphere 800,400,48,48
+texture object 800,8
+scale object texture 800,6,6
+set object cull 800,0
+
+` cloth 1
+make object box 2, 10, 1, 1
+position object 2, 1, 6.5, 0
+phy make rigid body static box 2
+phy make cloth 3
+phy set cloth dimensions 3, 8, 7, 0.2
+phy set cloth position 3, -3, 7.1, 0
+phy set cloth tearing 3, 1
+phy build cloth 3
+phy attach cloth to shape 3, 2, 1
+texture object 3, 2
+
+` cloth 2
+make object box 4, 5, 2, 5
+position object 4, 10, 2.5, 0
+phy make rigid body static box 4
+phy make cloth 5
+phy set cloth dimensions 5, 8, 8, 0.2
+phy set cloth position 5, 6, 9, -4.5
+phy set cloth damping 5, 1
+phy build cloth 5
+phy attach cloth to shape 5, 4, 1
+texture object 5, 1
+
+` cloth 3
+make object box 6, 1, 10, 1
+position object 6, 15, 5, 0
+phy make rigid body static box 6
+phy make cloth 7
+phy set cloth dimensions 7, 4, 4, 0.2
+phy set cloth position 7, 15.1, 10, 0
+phy set cloth gravity 7, 1
+phy set cloth damping 7, 1
+phy set cloth rotation 7, 90, 0, 0
+phy set cloth external acceleration 7, 35, 0, 10
+phy build cloth 7
+phy attach cloth to shape 7, 6, 1
+texture object 7, 2
+
+` cloth 4
+make object box 8, 2, 2, 2
+position object 8, 22, 10, 0
+phy make rigid body static box 8
+make object sphere 9, 1
+position object 9, 22, 9, 6.5
+phy make rigid body dynamic sphere 9
+phy make cloth 10
+phy set cloth dimensions 10, 1.6, 7, 0.4
+phy set cloth position 10, 21, 9, 0
+phy build cloth 10
+phy attach cloth to all shapes 10, 1
+texture object 10, 1
+
+` cloth 5
+make object box 11, 1, 1, 5
+position object 11, -8, 3, 0
+phy make rigid body static box 11
+make object box 12, 1, 1, 5
+position object 12, -16, 3, 0
+phy make rigid body static box 12
+phy make cloth 13
+phy set cloth dimensions 13, 8, 4, 0.5
+phy set cloth position 13, -16, 3, -2.5
+phy build cloth 13
+phy attach cloth to all shapes 13, 0
+texture object 13, 1
+
+` display Dark Physics logo
+load image "logo.png", 100000
+sprite 1, 0, 600 - 60, 100000
+
+` main loop
+do
+   ` update simulation and screen
+   phy update
+   sync
+loop

@@ -1,0 +1,13 @@
+
+Instructions for this update
+============================
+
+Step 1 - Install latest upgrade for DB Pro - http://darkbasicpro.thegamecreators.com/?f=upgrades
+
+
+Step 2 - Download latest system software for PhysX - http://developer.nvidia.com/object/physx_downloads.html#System
+
+
+Step 3 - copy these files into your DB Pro folder and overwrite any existing items
+
+

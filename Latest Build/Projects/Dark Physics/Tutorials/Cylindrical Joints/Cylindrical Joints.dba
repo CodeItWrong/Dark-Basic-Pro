@@ -1,0 +1,73 @@
+
+` in this program we see how a cylindrical joint
+` is set up and used
+
+` sort out program properties
+phy start
+autocam off
+sync on
+sync rate 60
+color backdrop 0
+position camera 0, 20, -70
+make light 1
+set directional light 1, -5, -5, 5
+
+rem stripe textures
+load image "stripe5.png",8
+make object sphere 8,400,48,48
+texture object 8,8
+scale object texture 8,6,6
+set object cull 8,0
+load image "stripe6.png",1
+
+` create our ground object
+make object box 1, 50, 1, 50
+texture object 1,1
+phy make rigid body static box 1
+
+y = 5
+
+` give some colour to our objects and adjust position
+for i = 2 to 3
+   make object cube i, 10
+   position object i, 0, y, 0
+   color object i, rgb ( rnd ( 255 ), rnd ( 255 ), rnd ( 255 ) )
+   set object specular i, rgb ( rnd ( 255 ), rnd ( 255 ), rnd ( 255 ) )
+   set object ambient i, 255
+   set object specular power i, 255
+   phy make rigid body dynamic box i
+   y = y + 24
+next i
+
+` make a cylindrical joint between our objects
+phy make cylindrical joint 1, 2, 3, object position x ( 2 ), object position y ( 2 ), object position z ( 2 ), 0, 5, 0
+
+` frame counter
+frame = 250
+
+` display Dark Physics logo
+load image "logo.png", 100000
+sprite 1, 0, 600 - 60, 100000
+
+` main program loop
+do
+   ` display information
+   set cursor 0, 0
+   print "A demonstration of movement allowed with cylindrical joints"
+
+   ` increment frame counter
+   frame = frame + 1
+
+   ` adjust linear velocity to demonstrate joint movement at intervals
+   if frame > 250
+      phy set rigid body linear velocity 3, 0, 10, 0
+      phy set rigid body angular velocity 3, 0, 1, 0
+      frame = 0
+   endif
+
+   ` update the simulation and screen
+   phy update
+   sync
+loop
+
+

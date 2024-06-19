@@ -1,0 +1,85 @@
+
+` demonstrates how a door can be created using joints
+
+` set up our program
+phy start
+sync on
+sync rate 60
+
+` create a floor object
+make object box 1, 210, 1, 210
+position object 1, 0, -1, 0
+phy make rigid body static box 1
+texture object 1, 3
+
+` create a wall at the back left
+make object box 2, 80, 60, 1
+position object 2, -60, 30, 100
+phy make rigid body static box 2
+
+` create wall at the back right
+make object box 3, 80, 60, 1
+position object 3, 60, 30, 100
+phy make rigid body static box 3
+
+` create left wall
+make object box 4, 1, 60, 200
+position object 4, -100, 30, 0
+phy make rigid body static box 4
+
+` create right wall
+make object box 5, 1, 60, 200
+position object 5, 100, 30, 0
+phy make rigid body static box 5
+
+` create front wall
+make object box 6, 200, 60, 1
+position object 6, 0, 30, -100
+phy make rigid body static box 6
+
+` create our door
+make object box 7, 39.8, 60, 1
+position object 7, 0, 30, 100
+color object 7, rgb( 255, 0, 0 )
+phy make rigid body dynamic box 7
+
+` create a revolute joint between the back left wall and the door
+phy make revolute joint 1, 2, 7, 0, 1, 0, -20, 30, 100
+
+` place a sphere so we can see the position of the joint
+make object sphere 9, 5
+position object 9, -20, 30, 100
+
+` make a sphere to fire at the door
+make object sphere 11, 15, 20, 20
+position object 11, 0, 15, 0
+phy make rigid body dynamic sphere 11
+color object 11, rgb ( rnd ( 255 ), rnd ( 255 ), rnd ( 255 ) )
+set object specular 11, rgb ( rnd ( 255 ), rnd ( 255 ), rnd ( 255 ) )
+set object specular power 11, 255
+set object ambient 11,0
+
+` position and rotate the camera to view the scene
+position camera -75, 140, -2
+rotate camera 47, 42, 0
+
+` display the Dark Physics logo
+load image "logo.png", 100000
+sprite 1, 0, 600 - 60, 100000
+
+` main program loop
+do
+   ` display some instructions
+   set cursor 0, 0
+   print "Press the space key to apply velocity to the sphere"
+
+   ` when the space key is pressed apply velocity to the door
+   if spacekey( ) = 1
+      phy set rigid body linear velocity 11, 0, 0, 80.0
+   endif
+
+   ` update the physics and screen
+   phy update
+   sync
+loop
+

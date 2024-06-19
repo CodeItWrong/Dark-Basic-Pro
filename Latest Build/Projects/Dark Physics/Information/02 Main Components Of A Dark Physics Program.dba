@@ -1,0 +1,16 @@
+
+` Main Components Of A Dark Physics Program
+
+` call this command to be able to use physics in our prograam
+phy start
+
+` main program loop
+do
+   ` call phy update to process the simulation
+   phy update
+loop
+
+` stop the physics engine
+phy end
+
+

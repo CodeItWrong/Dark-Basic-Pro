@@ -1,0 +1,91 @@
+<html>
+<head>
+<title>PHY MAKE RIGID BODY DYNAMIC MESHES</title>
+</head>
+<body background='gfx\dbpro_bg.jpg'>
+
+<!-- Page Header -->
+<table width='100%' border='0' cellpadding='0' cellspacing='0'>
+<tr><td align='center'><img src='gfx\dbph_head_1.jpg' width='340' height='51'></td></tr>
+</table>
+
+<table width='100%' border='0' cellpadding='0' cellspacing='0'>
+<tr><td>
+<!-- Function Head -->
+<font face="Verdana" size="5">
+<b>
+PHY MAKE RIGID BODY DYNAMIC MESHES
+</b>
+<font face="Verdana" size="2">
+<p>
+Takes an object and makes a multi shape rigid body for it from all of its limbs using meshes.
+</p>
+</font>
+
+<!-- Syntax -->
+<table width='100%' cellpadding='2'>
+<tr><td bgcolor='#0d4283'><font color='#ffffff' size='3'><b>&nbsp;
+Syntax
+</b></font></td></tr>
+</table>
+<font face="Verdana" size="2">
+<pre>
+phy make rigid body dynamic meshes ID <BR>phy make rigid body dynamic meshes ID, material <BR>phy make rigid body dynamic meshes ID, file$ <BR>phy make rigid body dynamic meshes ID, file$, material
+
+</pre>
+</font>
+
+<!-- Parameters -->
+<table width='100%' cellpadding='2'>
+<tr><td bgcolor='#0d4283'><font color='#ffffff' size='3'><b>&nbsp;
+Parameters
+</b></font></td></tr>
+</table>
+<font face="Verdana" size="2">
+<BR>
+<pre>ID
+</pre><blockquote> identification number of the 3D object that you want to be represented by a collection of dynamic meshes in the simulation  
+<br><br></blockquote><pre>material
+</pre><blockquote> this parameter is optional, a material can be specified if required upon creation, by specifying a material you can have further control over how the object will react with other objects in regard to properties such as its restitution
+<br><br></blockquote><pre>file$
+</pre><blockquote> this parameter is optional and when used the data from the object will be saved out to the specified file, this can be useful for some complex objects as the computational time may be long, this file can later be loaded in much faster using the command phy load rigid body dynamic meshes
+<br><br></blockquote>
+</font>
+
+<!-- Returns -->
+<table width='100%' cellpadding='2'>
+<tr><td bgcolor='#0d4283'><font color='#ffffff' size='3'><b>&nbsp;
+Returns
+</b></font></td></tr>
+</table>
+<font face="Verdana" size="2">
+<p>
+This command does not return a value.
+</p>
+</font>
+
+<!-- Description -->
+<table width='100%' cellpadding='2'>
+<tr><td bgcolor='#0d4283'><font color='#ffffff' size='3'><b>&nbsp;
+Description
+</b></font></td></tr>
+</table>
+<font face="Verdana" size="2"> 
+<p>
+ This is particularly useful in cases where more complex objects are required than the standard box, sphere and capsule.  <br><br>Note that this command operates on limbs / meshes in an object so this determines how the object is represented. Having only one limb / mesh in the object will result in only one rigid body mesh being created so it is important to ensure the model you are using is set up correctly so in the case of a table make sure each component is a separate limb / mesh within the model hierarchy. As the object is represented by a collection of dynamic rigid body meshes it will be moveable and will be affected by forces such as gravity etc.
+
+</p>
+</font>
+
+<!-- Function Footer -->
+</font>
+</td></tr></table>
+<br>
+
+<!-- Page Footer -->
+<table width='100%' border='0' cellpadding='0' cellspacing='0'>
+<tr><td align='center'><img src='gfx\dbph_foot_1.jpg' width='340' height='38'></td></tr>
+</table>
+</body>
+</html>
+

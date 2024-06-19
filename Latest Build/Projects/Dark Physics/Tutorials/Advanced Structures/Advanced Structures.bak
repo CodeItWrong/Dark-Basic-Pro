@@ -1,0 +1,154 @@
+
+` there is a great deal of flexibility in Dark Physics and it allows for all kinds of
+` complex structures to be created through the use of joints, in this tutorial
+` we will look at how a simple set of boxes can be transformed into a
+` bridge structure
+
+phy start
+sync on
+sync rate 60
+
+` our next stage is to create our ground object, this object is a simple box that
+` then has a rigid body attached to it which then has its dynamic state set to false
+make object box 1, 400, 1, 400
+color object 1, rgb ( 100, 0, 0 )
+phy make rigid body static box 1
+
+` when the bridge has been created it will need to be attached to something, it cannot
+` simply be positioned in empty space so we need to think about what each end of the bridge
+` can be attached to, we can create 2 box objects and position these on top of the ground
+` and by doing this have 2 locations upon which we can attach the bridge, the code for
+` this is fairly straight forward, the first block of code creates a box with an ID number
+` of 2 and size of 60, 50, 400, it is then positioned on the left side of the ground object
+` and a rigid body box created for it
+make object box 2, 60, 50, 400
+position object 2, -170, 25, 0
+phy make rigid body static box 2
+
+` the second block of code is similar except this time an ID number of 3 is used and the
+` object is positioned on the right side of the ground as shown by the screenshot
+make object box 3, 60, 50, 400
+position object 3, 170, 25, 0
+phy make rigid body static box 3
+
+` construct the support chains for the bridge
+CreateSupportChain( 4, 27, 1, -137, 50, 50 )
+CreateSupportChain( 28, 51, 50, -137, 50, -50 )
+
+` the next block of code creates the beams between the support chains and also hooks
+` everything together with hinge joints
+JointID = 100
+
+x# = -131
+y# = 50
+z# = 0
+
+a = 4
+b = 28
+
+` run through objects
+for i = 52 to 75
+   ` create a beam and position it
+   make object box i, 2, 2, 100
+   position object i, x#, y#, z#
+
+   ` create a rigid body box for it
+   phy make rigid body dynamic box i
+
+   color object i, rgb ( rnd ( 255 ), rnd ( 255 ), rnd ( 255 ) )
+   set object specular i, rgb ( rnd ( 255 ), rnd ( 255 ), rnd ( 255 ) )
+   set object specular power i, 255
+   set object ambient i,0
+
+   ` create a hinge joint between the beam and its closest support chain block on the far side
+   phy make revolute joint JointID, i, a,  1, 0, 0, object position x ( a ), object position y ( a ), object position z ( a )
+   JointID = JointID + 1
+
+   ` create a hinge joint between the beam and its closest support chain block on the near side
+   phy make revolute joint JointID, i, b,  1, 0, 0, object position x ( b ), object position y ( b ), object position z ( b )
+   JointID = JointID + 1
+
+   ` increment the values
+   a = a + 1
+   b = b + 1
+   x# = x# + 12
+next i
+
+` create a heavy sphere to roll across the bridge
+make object sphere 100, 50
+position object 100, 175, 90, 0
+
+phy make rigid body dynamic sphere 100
+
+color object 100, rgb ( rnd ( 255 ), rnd ( 255 ), rnd ( 255 ) )
+set object specular 100, rgb ( rnd ( 255 ), rnd ( 255 ), rnd ( 255 ) )
+set object specular power 100, 255
+set object ambient 100,0
+
+` position and rotate the camera
+position camera -120, 135, -161
+rotate camera 35, 34, 0
+
+make light 1
+set directional light 1, -5,-5,5
+
+load image "logo.png", 100000
+sprite 1, 0, 600 - 60, 100000
+
+` now our main loop
+do
+   ` display information
+   set cursor 0, 0
+   print "Advanced Structures"
+   print "Press space to move the sphere"
+
+   ` when the space key is pressed apply a velocity to the sphere
+   if spacekey ( )
+      phy set rigid body linear velocity 100, -20, 10, 0
+   endif
+
+   phy update
+   sync
+loop
+
+
+
+function CreateSupportChain( StartID, EndID, JointID, x#, y#, z# )
+   ` this function will create a support chain for the bridge from the specified
+   ` starting point
+
+   ` create the chain of boxes
+   for i = StartID to EndID
+      make object box i, 10, 2, 2
+      position object i, x#, y#, z#
+      phy make rigid body dynamic box i
+
+      color object i, rgb ( rnd ( 255 ), rnd ( 255 ), rnd ( 255 ) )
+      set object specular i, rgb ( rnd ( 255 ), rnd ( 255 ), rnd ( 255 ) )
+      set object specular power i, 255
+      set object ambient i,0
+
+      x# = x# + 12
+   next i
+
+   ` set up ball joints between them
+   for i = StartID to EndID - 1
+      phy make sphere joint JointID, i, i + 1, object position x ( i ), object position y ( i ), object position z ( i )
+      JointID = JointID + 1
+   next i
+
+   ` ball joints going in other direction
+   for i = StartID + 1 to EndID
+      phy make sphere joint JointID, i, i - 1, object position x ( i ), object position y ( i ), object position z ( i )
+      JointID = JointID + 1
+   next i
+
+   ` further ball joints
+   phy make sphere joint JointID, 2, StartID, object position x ( StartID ), object position y ( StartID ), object position z ( StartID )
+   JointID = JointID + 1
+
+   phy make sphere joint JointID, 3, EndID - 1, object position x ( EndID - 1 ), object position y ( EndID - 1 ), object position z ( EndID - 1 )
+   JointID = JointID + 1
+endfunction
+
+

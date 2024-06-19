@@ -1,0 +1,227 @@
+rem Fluid Demo
+
+rem Screenshot control
+global notextandlogos : notextandlogos=0
+
+rem Init
+sync on : sync rate 0 : autocam off
+
+rem Counters
+tmlast as double integer
+tmcode as double integer
+tmphysics as double integer
+tmvisuals as double integer
+
+rem Camera
+position camera -6,6,-6 : point camera 0,0,0
+color backdrop rgb(0,32,0)
+set normalization on : set ambient light 5
+set directional light 0,0.1,-0.7,0.4
+set camera range 1,3000
+
+rem Goo light
+make light 1 : set point light 1,0,1,0
+color light 1,-200,200,-200
+
+rem Logo sprite
+if notextandlogos=0
+ load image "logo.png", 100000 : sprite 1,0,screen height()-60,100000
+ size sprite 1,screen width(),60
+endif
+
+rem Main loop
+disable escapekey
+set window layout 0,1,0
+clear=mousemovex()
+clear=mousemovey()
+escaped=0
+hardwaremode=0
+while escaped=0
+
+rem Setup physics
+gosub _physics_init
+gosub _physics_setup
+phy update 0
+
+rem Main
+set text size 20
+set text font "VERDANA"
+clear=mousemovex()
+clear=mousemovey()
+while mouseclick()=0 and escaped=0
+ `
+ rem give the CPU some game logic to do (faked)
+ tmlast=perftimer()
+ for t=1 to 10000 : a#=sqrt(b#/c#/d#/e#/f#/g#) : next t
+ if tmdelay=0 then tmcode=perftimer()-tmlast
+ `
+ rem Spin camera
+ inc spin#,0.5
+ position camera 0+(cos(spin#)*8),5,0+(sin(spin#)*8)
+ point camera 0,-1,0
+ `
+ rem prompts
+ if notextandlogos=0
+  if hardwaremode=0 then what$="CPU"
+  if hardwaremode=1 then what$="GPU"
+  center text screen width()/2,20,what$+" screen frame rate is "+str$(screen fps())+" fps"
+  center text screen width()/2,40,"press left mouse button to restart fluid simulation"
+ endif
+ `
+ rem update simulation
+ tmlast=perftimer()
+ phy update 1
+ phy update 0
+ if tmdelay=0 then tmphysics=perftimer()-tmlast
+ `
+ rem visual update
+ tmlast=perftimer()
+ sync
+ if tmdelay=0 then tmvisuals=perftimer()-tmlast
+ `
+ rem timer handler
+ inc tmdelay : if tmdelay>30 then tmdelay=0
+ `
+ rem Quit message
+ if escapekey()=1 then escaped=1
+ `
+endwhile
+while spacekey()<>0 : endwhile
+
+rem toggle hardware flag
+hardwaremode=1-hardwaremode
+
+rem free usages
+phy update 1
+delete objects 1,objid
+phy end
+
+rem SW/HW endloop
+endwhile
+endsplash()
+end
+
+_physics_init:
+ `
+ rem Start the Physics Engine
+ if hardwaremode=1
+  if physx()=1
+   phy start 1,0,1
+  else
+   hardwaremode=0
+   phy start
+  endif
+ else
+  phy start
+ endif
+ phy set skin width 0.02
+ `
+return
+
+_physics_setup:
+
+rem make some fluid
+if 1
+ phy make fluid 2
+ if firsttime=0
+  firsttime=1
+  phy set fluid position 2, -1, 1, -1
+ else
+  phy set fluid position 2, rnd(2)-1, (20+rnd(10))/10.0, rnd(2)-1
+ endif
+ phy set fluid viscosity 2, 50
+ phy set fluid damping 2, 0.5
+ phy set fluid particle buffer cap 2,5000
+ phy build fluid 2
+endif
+
+rem make material no bounce
+nobouncematerial=1
+phy make material nobouncematerial, "little bounce"
+phy set material restitution nobouncematerial,0.1
+phy build material nobouncematerial
+
+rem container dir
+set dir "Container"
+
+rem create original cylinder model
+objid=3 : load object "cylinder_c.X",objid
+load image "cylinder_c_D2.dds",3
+texture object objid,3
+scale object objid,2.5,2.5,2.5
+make mesh from object objid,objid
+delete object objid
+make object objid,objid,3
+hide object objid
+cylinderobj=objid
+
+rem restore dir
+set dir ".."
+
+rem make a trench system
+load image "dbprocubemap.dds",4
+inc objid : make object box objid,5,0.1,5 : rotate object objid,1,0,0-30 : set cube mapping on objid,4,4,4,4,4,4
+phy make rigid body static box objid,nobouncematerial
+inc objid : make object box objid,5,0.1,5 : rotate object objid,1,0,030 : set cube mapping on objid,4,4,4,4,4,4
+phy make rigid body static box objid,nobouncematerial
+inc objid : make object box objid,5,0.1,5 : rotate object objid,30,90,0 : set cube mapping on objid,4,4,4,4,4,4
+phy make rigid body static box objid,nobouncematerial
+inc objid : make object box objid,5,0.1,5 : rotate object objid,-30,90,0 : set cube mapping on objid,4,4,4,4,4,4
+phy make rigid body static box objid,nobouncematerial
+
+rem create decorative spheres
+inc objid : make object sphere objid,5,10,10 : position object objid,0,-2,0 : set cube mapping on objid,4,4,4,4,4,4
+phy make rigid body static sphere objid,nobouncematerial
+for a=0 to 270 step 90
+ inc objid : make object sphere objid,1.25,10,10 : position object objid,cos(45+a)*3,1,sin(45+a)*3 : set cube mapping on objid,4,4,4,4,4,4
+ phy make rigid body static sphere objid,nobouncematerial
+ inc objid : make object sphere objid,1.25,10,10 : position object objid,cos(45+a)*3,-1,sin(45+a)*3 : set cube mapping on objid,4,4,4,4,4,4
+ phy make rigid body static sphere objid,nobouncematerial
+next a
+
+rem make cylinders
+for c=1 to 10
+ inc objid : instance object objid,cylinderobj
+ position object objid,(rnd(100)-50)/1000.0,10+(c*3),(rnd(100)-50)/1000.0
+ rotate object objid,rnd(360),rnd(360),rnd(360)
+ phy make rigid body dynamic box objid,nobouncematerial
+ phy set rigid body mass objid,1
+next c
+
+return
+
+rem Splash used to advertise DarkPHYSICS special offer
+function endsplash()
+ for o=1 to 655000
+  if object exist(o)=1
+   delete object o
+  endif
+ next o
+ backdrop off
+ if notextandlogos=0 then delete sprite 1
+ set current bitmap 0
+ load bitmap "splash.jpg"
+ get image 1,106,459,419,507,1
+ while mouseclick()<>0 : endwhile
+ while escapekey()<>0 : endwhile
+ while mouseclick()=0 and escapekey()=0
+  over=0
+  if mousex()>=106 and mousex()<419
+   if mousey()>=459 and mousey()<=507
+    over=1
+   endif
+  endif
+  if over=1
+   paste image 1,107,460,1
+  else
+   paste image 1,106,459,1
+  endif
+  sync
+ endwhile
+ if over=1
+  cls : sync
+  execute file "http://www.thegamecreators.com/physxoffer","",""
+ endif
+endfunction
+
+

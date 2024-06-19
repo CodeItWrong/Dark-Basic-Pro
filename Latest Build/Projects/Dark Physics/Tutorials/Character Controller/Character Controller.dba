@@ -1,0 +1,113 @@
+
+` demonstrates how to use a character controller
+` to move around a simple scene
+
+` set up general properties
+phy start
+autocam off
+sync on
+sync rate 60
+color backdrop 0
+position camera 0, 20, -70
+make light 1
+set directional light 1, -5, -5, 5
+
+rem stripe textures
+load image "stripe5.png",8
+make object sphere 8,400,48,48
+texture object 8,8
+scale object texture 8,6,6
+set object cull 8,0
+load image "stripe6.png",1
+
+` make our ground object
+make object box 1, 50, 1, 50
+texture object 1,1
+phy make rigid body static box 1
+
+` create a set of steps
+x# = 10
+y# = 1
+
+for i = 10 to 20
+   make object box i, 3, 2, 10
+   position object i, x#, y#, 0
+
+   x# = x# + 3
+   y# = y# + 1
+
+   phy make rigid body static box i
+next i
+
+` create a stack of boxes
+y# = 1
+
+for i = 21 to 31
+   make object cube i, 2
+   position object i, -10, y#, 0
+
+   y# = y# + 2
+
+   phy make rigid body dynamic box i
+next i
+
+` create our character controller
+w#=5 : h#=10
+make object box 2, w#, h#, w#
+phy make box character controller 2, 0, 10, 0, w#/2, h#/2, w#/2, 1, 1.5, 45.0
+
+` give all of objects a splash of colour
+for i = 1 to 31
+   if object exist ( i ) and i<>1 and i<>8
+      color object i, rgb ( rnd ( 255 ), rnd ( 255 ), rnd ( 255 ) )
+      set object specular i, rgb ( rnd ( 255 ), rnd ( 255 ), rnd ( 255 ) )
+      set object specular power i, 255
+      set object ambient i, 0
+   endif
+next i
+
+` display the Dark Physics logo
+load image "logo.png", 100000
+sprite 1, 0, 600 - 60, 100000
+
+lastObjectA = 0
+lastObjectB = 0
+
+` and now our main loop
+do
+   ` display some instructions on screen
+   set cursor 0, 0
+   print "Character Controller Example"
+   print "Use the arrow keys to move the box around"
+   print "object a = " + str$ ( lastObjectA )
+   print "object b = " + str$ ( lastObjectB )
+
+   ` turn the object left when the left key is pressed
+   if leftkey ( )
+      turn object left 2, 1.0
+   endif
+
+   ` turn the object right when the right key is pressed
+   if rightkey ( )
+      turn object right 2, 1.0
+   endif
+
+   ` apply a force to move the controller when the up key is pressed
+   if upkey ( )
+      phy move character controller 2, 10.0
+   else
+      phy move character controller 2, 0.0
+   endif
+
+   while phy get collision data ( )
+      lastObjectA = phy get collision object a ( )
+      lastObjectB = phy get collision object b ( )
+   endwhile
+
+
+   ` update the simulation and screen
+   phy update
+   sync
+loop
+
+

@@ -1,0 +1,58 @@
+phy start
+autocam off
+sync rate 60
+color backdrop 0
+position camera 0, 20, -70
+
+make object cube 1, 5
+position object 1, 0, 0, 0
+phy make rigid body static box 1
+
+make object cube 2, 5
+position object 2, -15, 0, 0
+phy make rigid body static box 2
+
+make object cube 3, 5
+position object 3, 15, 0, 0
+phy make rigid body static box 3
+
+make object cube 4, 5
+position object 4, 0, 20, 0
+make object box 5, 1, 15, 1
+position object 5, 0, 15, 0
+
+load image "logo.png", 100000
+sprite 1, 0, 600 - 60, 100000
+
+do
+   for i = 1 to 3
+      color object i, 0
+   next i
+
+   x# = object position x ( 4 )
+   y# = object position y ( 4 )
+   z# = object position z ( 4 )
+
+   value = phy ray cast all shapes ( x#, y#, z#, 0, -1, 0 )
+
+   if phy get ray cast hit( )= 1
+        color object phy get ray cast object ( ), rgb ( 0, 0, 255 )
+   endif
+
+   if leftkey ( )
+      move object left 4, 0.4
+      move object left 5, 0.4
+   endif
+
+   if rightkey ( )
+      move object right 4, 0.4
+      move object right 5, 0.4
+   endif
+
+   phy update
+   sync
+loop
+
+
+
+

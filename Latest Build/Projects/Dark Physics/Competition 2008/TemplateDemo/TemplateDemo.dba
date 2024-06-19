@@ -1,0 +1,187 @@
+REM Project: TemplateDemo
+REM Created: 16/06/2008 12:21:51
+REM This templaye demo can be used as a starting point
+REM for your competition entry, or as a reference for how
+REM best to scale your demo as required by the guidelines
+
+rem Global variables
+global yourdemoname$ : yourdemoname$="NVIDIA PhysX Demo"
+global notextandlogos : notextandlogos=0
+global hardwaremode : hardwaremode=1
+global scale : scale=1
+
+rem Initial demo prompt (for possible scene set-up delay)
+set text font "verdana" : set text size 20 : ink rgb(255,255,255),0
+cls : center text screen width()/2,screen height()/2-20,"...Starting "+yourdemoname$+"..."
+
+rem Init
+set window layout 0,1,0
+sync on : sync rate 0 : disable escapekey : color backdrop rgb(0,32,0)
+
+rem Logo sprite
+load image "logo.png", 100000
+if notextandlogos=0 then sprite 1, 0, 600 - 60, 100000 : set sprite 1, 0, 1
+
+rem Master loop
+while escapekey()=0 and scale<>-1
+
+rem Setup physics engine
+gosub _physics_setup
+
+rem Setup your demo scene
+gosub _yourdemo_setup
+
+rem Prompt we are preparing the scene (SYNC triggers object creation delay)
+cls : center text screen width()/2,screen height()/2-20,"...Preparing New Scene..." : sync
+
+rem Single scale loop
+currentscale=scale : scale=0
+while scale=0
+ `
+ rem Control your demo
+ gosub _yourdemo_handle
+ `
+ rem Control demo prompt and keys
+ if notextandlogos=0
+  if hardwaremode=1 then p$="GPU" else p$="CPU"
+  if currentscale=1 then s$="LOW"
+  if currentscale=2 then s$="MEDIUM"
+  if currentscale=3 then s$="HIGH"
+  center text (screen width()-170)/2,screen height()-50,yourdemoname$+" ( "+p$+" "+s$+" "+str$(screen fps())+" fps )"
+  if physx()=1 then extra$="  [C] CPU  [G] GPU" else extra$=""
+  center text (screen width()-170)/2,screen height()-30,"[1] Low  [2] Medium  [3] High"+extra$
+ endif
+ if inkey$()="1" then scale=1
+ if inkey$()="2" then scale=2
+ if inkey$()="3" then scale=3
+ if physx()=1 and lower$(inkey$())="c" then scale=currentscale : hardwaremode=0
+ if physx()=1 and lower$(inkey$())="g" then scale=currentscale : hardwaremode=1
+ if escapekey()=1 then scale=-1
+ `
+ rem Update physics
+ phy update
+ `
+ rem Update screen
+ sync
+ `
+endwhile
+while spacekey()<>0 : endwhile
+
+rem Delete current scene
+gosub _yourdemo_end
+
+rem Prompt we are reseting the scene
+if scale<>-1 then cls : center text screen width()/2,screen height()/2-20,"...Resetting Scene..." : sync
+
+rem Free usages (before we change state)
+gosub _physics_end
+
+rem SW/HW endloop
+endwhile
+endsplash()
+end
+
+_yourdemo_setup:
+ `
+ rem Create your scene
+ make object box 1,100,20,100
+ phy make rigid body dynamic box 1
+ phy set rigid body kinematic 1,1
+` phy make rigid body static box 1,0
+ for o=2 to scale*2000
+  make object cube o,1
+  position object o,rnd(10)-5,10+(o*2),rnd(10)-5
+  phy make rigid body dynamic box o
+  color object o,rgb(255,128,0)
+ next o
+ omax=o-1
+ `
+ rem Place scene camera
+ position camera 0,125,-150
+ point camera 0,35,0
+ `
+return
+
+_yourdemo_handle:
+ `
+ rem Handle your demo here
+ if notextandlogos=0
+  center text screen width()/2,20,"use mouse to rotate white platform"
+  center text screen width()/2,40,str$(statistic(1))+" polygons in scene"
+ endif
+ phy set rigid body kinematic rotation 1, (mousey()-300)/-5.0, (mousex()-400)/-5.0, 0
+ `
+return
+
+_yourdemo_end:
+ `
+ rem Delete scene completely
+ for o=1 to omax
+  if object exist(o)=1
+   phy delete rigid body o
+   delete object o
+  endif
+ next o
+ `
+return
+
+_physics_setup:
+ `
+ rem Start the Physics Engine
+ if hardwaremode=1
+  if physx()=1
+   phy start 1,0,1
+  else
+   hardwaremode=0
+   phy start
+  endif
+ else
+  phy start
+ endif
+ `
+return
+
+_physics_end:
+ `
+ rem Free physics ready for new scene or exit
+ phy update : phy end
+ `
+return
+
+rem Splash used to advertise DarkPHYSICS special offer
+function endsplash()
+ for o=1 to 655000
+  if object exist(o)=1
+   delete object o
+  endif
+ next o
+ backdrop off
+ if notextandlogos=0
+  delete sprite 1
+ endif
+ set current bitmap 0
+ load bitmap "splash.jpg"
+ get image 1,106,459,419,507,1
+ while mouseclick()<>0 : endwhile
+ while escapekey()<>0 : endwhile
+ while mouseclick()=0 and escapekey()=0
+  over=0
+  if mousex()>=106 and mousex()<419
+   if mousey()>=459 and mousey()<=507
+    over=1
+   endif
+  endif
+  if over=1
+   paste image 1,107,460,1
+  else
+   paste image 1,106,459,1
+  endif
+  sync
+ endwhile
+ if over=1
+  cls : sync
+  execute file "http://www.thegamecreators.com/physxoffer","",""
+ endif
+endfunction
+
+

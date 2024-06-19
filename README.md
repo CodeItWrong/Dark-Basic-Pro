@@ -11,3 +11,6 @@ Notes:
 1. The Synergy Editor assumes DBPro is directly installed in the default folder for 32-bit program files on the OS drive: "C:\Program Files (x86)\Dark-Basic-Pro\". To change this behavior open the file "Editor\Synergy Editor.cfg" and change the value of the "DBPLocation" property accordingly. The value of the "DBPLocation" property in the 090216 and 120216 binary releases has a placeholder value used on development that most likely will need to be changed.
 
 2. The default folder destination assumed by plug-in installers might differ from the actual folder where the installation sits on. When prompted by an installer to choose a different destination do it accordingly.
+
+# Instructions
+1. Go Under the Latest Build Folder

@@ -1,0 +1,66 @@
+
+` collision feedback
+
+` set up the program
+phy start
+autocam off
+sync on
+sync rate 60
+color backdrop 0
+position camera 0, 20, -40
+
+` create the ground object
+make object box 1, 50, 1, 50
+phy make rigid body static box 1
+
+` make and position 3 cubes
+make object cube 2, 5
+make object cube 3, 5
+make object cube 4, 5
+
+position object 2, 0, 10, 0
+position object 3, 2, 20, 0
+position object 4, 3, 30, 0
+
+phy make rigid body static box 2
+phy make rigid body dynamic box 3
+phy make rigid body dynamic box 4
+
+` display the Dark Physics logo
+load image "logo.png", 100000
+sprite 1, 0, 600 - 60, 100000
+
+` main program loop
+do
+   ` display information
+   set cursor 0, 0
+   print "Example demonstrating how to determine when collisions have taken place"
+   print "When objects 3 and 4 collide object 3 will turn red and object 4 will turn green"
+   print "When any object hits object 2 it will turn yellow"
+
+   ` extract collision data
+   while phy get collision data ( )
+      a = phy get collision object a ( )
+      b = phy get collision object b ( )
+
+      ` react when objects 3 and 4 collide
+      if a = 3 and b = 4
+         color object 3, rgb ( 255, 0, 0 )
+         color object 4, rgb ( 0, 255, 0 )
+      endif
+
+      ` react when one of the objects hit object 2
+      if a = 2 or b = 2
+         color object 2, rgb ( 255, 255, 0 )
+      endif
+
+      ` react when any of the objects hit the floor
+      if a = 1 or b = 1
+         color object 1, rgb ( 0, 0, 255 )
+      endif
+   endwhile
+
+   phy update
+   sync
+loop
+

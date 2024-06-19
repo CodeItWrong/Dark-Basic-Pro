@@ -1,0 +1,339 @@
+
+rem Construct a bridge from actual
+rem model parts running under a rigid
+rem body simulation
+
+rem Init global and font
+global jid as integer
+set text font "verdana"
+set text size 20
+
+rem Modes
+load sound "media\MouseClickOnPopups.wav",1
+for ques=1 to 3
+ if ques=1 then ss$="DO YOU WISH TO RUN THIS DEMO USING SHADERS? (y/n)"
+ if ques=2 then ss$="DO YOU WISH TO RUN THIS DEMO USING SHADOWS? (y/n)"
+ if ques=3 then ss$="DO YOU WISH TO RUN THIS DEMO USING REFLECTION? (y/n)"
+ center text screen width()/2,(screen height()/2)-20,ss$
+ delay=5000
+ while delay>0
+  dec delay
+  k$=inkey$()
+  if k$<>""
+   if ques=1
+    if lower$(k$)="y" then shadermode=1 : exit
+    if lower$(k$)<>"y" then shadermode=0 : exit
+   endif
+   if ques=2
+    if lower$(k$)="y" then shadowmode=1 : exit
+    if lower$(k$)<>"y" then shadowmode=0 : exit
+   endif
+   if ques=3
+    if lower$(k$)="y" then reflectmode=1 : exit
+    if lower$(k$)<>"y" then reflectmode=0 : exit
+   endif
+  endif
+  sleep 1
+ endwhile
+ play sound 1
+ while inkey$()<>"" : endwhile
+ cls
+next ques
+
+rem Start 3D and physics
+sync on : sync rate 0 : autocam off
+backdrop off : hide mouse
+phy start
+
+rem Load shader
+if shadermode=1
+ load effect "media\relief_mapping_3_0.fx",1,0
+endif
+
+rem Bridge location
+load object "media\posts.dbo",11
+x#=object collision center x(11)
+y#=object collision center y(11)
+z#=object collision center z(11)
+load object "media\rope.dbo",12
+if shadermode=1
+ load image "media\post_D.dds",11
+ load image "media\post_R.dds",12
+ texture object 11,0,11
+ texture object 11,1,12
+ set object effect 11,1
+ load image "media\rope_D.dds",13
+ load image "media\rope_R.dds",14
+ texture object 12,0,13
+ texture object 12,1,14
+ set object effect 12,1
+endif
+if shadowmode=1 then set shadow shading on 11,-1,1000,1
+if shadowmode=1 then set shadow shading on 12,-1,1000,1
+
+rem Bridge parts
+load object "media\plank1.dbo",13 : position object 13,0,0,0 : hide object 13
+load object "media\ropebones.dbo",14 : position object 14,-13,1,820 : makebonerope(14)
+load object "media\ropebones.dbo",15 : position object 15, 30,1,820 : makebonerope(15)
+if shadowmode=1 then set shadow shading on 14,-1,1000,1
+if shadowmode=1 then set shadow shading on 15,-1,1000,1
+
+rem Create many plank clones
+if shadermode=1
+ load image "media\plank1_D.dds",21
+ load image "media\plank1_R.dds",22
+else
+ load image "media\plank1_D.dds",21
+ load image "media\plank2_D.dds",22
+ load image "media\plank3_D.dds",23
+endif
+ropelinkobjA=((14)*100)+1
+ropelinkobjB=((15)*100)+1
+for o=21 to 37
+ clone object o,13
+ if shadermode=1
+  texture object o,0,21
+  texture object o,1,22
+  set object effect o,1
+ else
+  texture object o,21+rnd(2)
+ endif
+ position object o,object position x(ropelinkobjA)+22.0, 1.0+object position y(ropelinkobjA), object position z(ropelinkobjA)
+ yrotate object o,rnd(1)*180
+ if shadowmode=1 then set shadow shading on o,-1,1000,1
+ phy make rigid body dynamic box o
+ phy set rigid body linear damping o,2
+ inc jid : phy make revolute joint jid, o, ropelinkobjA, 1,0,0, object position x(ropelinkobjA), 1.0+object position y(ropelinkobjA), object position z(ropelinkobjA)-5
+ inc jid : phy make revolute joint jid, o, ropelinkobjA, 1,0,0, object position x(ropelinkobjA), 1.0+object position y(ropelinkobjA), object position z(ropelinkobjA)+5
+ inc ropelinkobjA
+ inc jid : phy make revolute joint jid, o, ropelinkobjB, 1,0,0, object position x(ropelinkobjB), 1.0+object position y(ropelinkobjB), object position z(ropelinkobjB)
+ inc ropelinkobjB
+next o
+
+rem World
+make object box 1,500,10,500 : position object 1,x#,-100,z# : phy make rigid body static box 1
+make object box 2,500,100,100 : position object 2,x#,-49,z#-133 : phy make rigid body static box 2
+make object box 3,500,100,100 : position object 3,x#,-49,z#+133 : phy make rigid body static box 3
+scale object texture 1,8,8
+scale object texture 2,8,2
+scale object texture 3,8,2
+load image "media\ground.dds",3
+if shadermode=1
+ load image "media\cobbles_D.dds",1
+ load image "media\cobbles_R.dds",2
+ for o=1 to 3
+  texture object o,0,1
+  texture object o,1,2
+  set object effect o,1
+ next o
+else
+ for o=1 to 3 : texture object o,3 : next o
+endif
+
+rem Sky
+load object "media\sky\ngt.dbo",1001
+set object light 1001,0
+scale object 1001,20000,20000,20000
+yrotate object 1001,90
+set object texture 1001,2,1
+set object cull 1001,0
+
+rem display Dark Physics logo
+load image "media\logo.png", 100000
+sprite 1, 0, screen height()-60, 100000
+size sprite 1,screen width(),60
+
+rem Camera
+position camera x#-80,y#+10,z#-100
+point camera x#,y#-20,z#
+
+rem Create a testball
+matid=1 : phy make material matid,"bouncy"
+phy set material restitution matid,1
+phy build material matid
+
+for b=53 to 53
+  make object sphere b,25,50,50
+ position object b,x#,50+((b-51)*40),z#-80+((b-51)*50)
+ if shadermode=1 and (reflectmode=0 or (reflectmode=1 and b<>53))
+  texture object b,0,51
+  texture object b,1,52
+  set object effect b,1
+ else
+  texture object b,51
+ endif
+ phy make rigid body dynamic sphere b,matid
+ phy set rigid body mass b,20000
+ if shadowmode=1 then set shadow shading on b,-1,1000,1
+next b
+
+set point light 0,x#-100,y#+200,z#-40
+
+rem Main
+phy update 0
+disable escapekey
+while escapekey()=0
+ `
+ rem Camera
+ if upkey()=1 or keystate(17)=1 then move camera 2
+ if downkey()=1 or keystate(31)=1 then move camera -2
+ angy# = camera angle y()
+ angx# = camera angle x()
+ xrotate camera 0
+ if leftkey()=1 or keystate(30)=1 then yrotate camera angy#-90 : move camera 2 : yrotate camera angy#
+ if rightkey()=1 or keystate(32)=1 then yrotate camera angy#+90 : move camera 2 : yrotate camera angy#
+ yrotate camera angy#+mousemovex()/2.0
+ xrotate camera angx#+mousemovey()/2.0
+ position object 1001,camera position x(0),camera position y(0),camera position z(0)
+ `
+ rem simple true reflection trick for obj
+ if reflectmode=1 then objid=53 : gosub _truereflectobj
+ `
+ rem prompt
+ center text screen width()/2,30,"MOUSELOOK TO MOVE AROUND   SCREEN FPS="+str$(screen fps())
+ if spacekey()=1
+`  for b=52 to 54
+  for b=53 to 53
+   phy delete rigid body b
+   position object b,x#,50+((b-51)*40),z#-80+((b-51)*50)
+   phy make rigid body dynamic sphere b,matid
+   phy set rigid body mass b,20000
+  next b
+ endif
+ `
+ rem Update simulation and screen
+ for quicker=0 to 4
+  phy update 1
+  phy update 0
+ next quicker
+ sync
+ `
+rem End loop
+endwhile
+phy update 1
+end
+
+_truereflectobj:
+ `
+ coffset=(objid-52)*6
+ if camera exist(coffset+1)=0
+  for c=1 to 6
+   make camera coffset+c
+   set camera aspect coffset+c,1
+   set camera fov coffset+c,90
+   backdrop off coffset+c
+   set camera to image coffset+c,100+coffset+c,256,256
+  next c
+  color object objid,rgb(255,255,255)
+  set object specular objid,rgb(255,255,255)
+  set object specular power objid,25
+  set cube mapping on objid,coffset+101,coffset+102,coffset+103,coffset+104,coffset+105,coffset+106
+  if shadowmode=1 then set shadow shading on objid,-1,1000,1
+ else
+  for c=1 to 6
+   position camera coffset+c,object position x(objid),object position y(objid),object position z(objid)
+   if c=1 then rotate camera coffset+c,0,90,0
+   if c=2 then rotate camera coffset+c,0,270,0
+   if c=3 then rotate camera coffset+c,270,0,0
+   if c=4 then rotate camera coffset+c,90,0,0
+   if c=5 then rotate camera coffset+c,0,0,0
+   if c=6 then rotate camera coffset+c,0,180,0
+  next c
+ endif
+ `
+return
+
+function makebonerope(modelid)
+
+ rem make seperate objects to represent the rope
+ perform checklist for object limbs modelid
+ cm=checklist quantity()
+ offset=modelid*100
+ objid=offset-1
+ for c=1 to cm-1
+  `
+  rem info from bones
+  x#=limb position x(modelid,c-1)
+  y#=limb position y(modelid,c-1)
+  z#=limb position z(modelid,c-1)
+  rx#=limb direction x(modelid,c-1)
+  ry#=limb direction y(modelid,c-1)
+  rz#=limb direction z(modelid,c-1)
+  `
+  rem new obj
+  inc objid : if object exist(objid)=1 then delete object objid
+  `
+  rem only make capsules out of 'qualifying bones'
+  c$=checklist string$(c)
+  if c=1
+   rem make root object
+   make object cube objid,0.1
+   position object objid,x#,y#,z#
+   rotate object objid,rx#,ry#,rz#
+   phy make rigid body dynamic box objid
+   phy set rigid body kinematic objid,1
+  else
+   if c=2 or c=18
+    rem make last connection (solid)
+    make object box objid,10,1,1
+    position object objid,x#,y#,z#
+    rotate object objid,rx#,ry#,rz#
+    move object left objid,-5.0
+    phy make rigid body dynamic box objid
+    phy set rigid body kinematic objid,1
+   else
+    if lower$(c$)<>"$noname$"
+     rem make capsule
+     make object box objid,10,1,1
+     position object objid,x#,y#,z#
+     rotate object objid,rx#,ry#,rz#
+     move object left objid,-5.0
+     phy make rigid body dynamic box objid
+     phy set rigid body angular damping objid,2
+     phy set rigid body linear damping objid,2
+    endif
+   endif
+  endif
+  `
+ next c
+ rem join the seperate objects to make copy of the rope model
+ for c=1 to cm-1
+  c$=checklist string$(c)
+  if c=1
+   link=c-1
+  else
+   if lower$(c$)<>"$noname$"
+    linkto=c-1 : a=offset+00+link : b=offset+00+linkto
+    inc jid : phy make revolute joint jid, a, b, 1, 0, 0, limb position x(modelid,linkto),limb position y(modelid,linkto),limb position z(modelid,linkto)
+    link=linkto
+   endif
+  endif
+ next c
+ `
+ rem set the model to become a ragdoll model, and use the 'base physics object - the first capsule'
+ rem assign ragdoll model limbs to point to real world jointed physics objects
+ phy make rag doll modelid, modelid, offset
+ phy assign rag doll part modelid, 0, 17, offset+01
+ phy assign rag doll part modelid, 0, 16, offset+02
+ phy assign rag doll part modelid, 0, 15, offset+03
+ phy assign rag doll part modelid, 0, 14, offset+04
+ phy assign rag doll part modelid, 0, 13, offset+05
+ phy assign rag doll part modelid, 0, 12, offset+06
+ phy assign rag doll part modelid, 0, 11, offset+07
+ phy assign rag doll part modelid, 0, 10, offset+08
+ phy assign rag doll part modelid, 0, 9, offset+09
+ phy assign rag doll part modelid, 0, 8, offset+10
+ phy assign rag doll part modelid, 0, 7, offset+11
+ phy assign rag doll part modelid, 0, 6, offset+12
+ phy assign rag doll part modelid, 0, 5, offset+13
+ phy assign rag doll part modelid, 0, 4, offset+14
+ phy assign rag doll part modelid, 0, 3, offset+15
+ phy assign rag doll part modelid, 0, 2, offset+16
+ phy assign rag doll part modelid, 0, 1, offset+17
+ phy assign rag doll part modelid, 0, 0, offset+18
+ `
+ rem hide physics objects controlling tagdoll model
+ for o=offset+00 to offset+18 : hide object o : next o
+ `
+endfunction
+

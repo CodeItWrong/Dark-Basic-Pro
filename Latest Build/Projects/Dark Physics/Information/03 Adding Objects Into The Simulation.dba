@@ -1,0 +1,37 @@
+
+` Adding Objects Into The Simulation
+` this example program demonstrates creating a few objects and adding them
+` into the simulation, the objects will simply fall down in front of the
+` camera
+
+` call this command to be able to use physics in our prograam
+phy start
+
+` set up sync rate
+sync on
+sync rate 60
+
+` create our objects and position them
+make object cube 1, 5
+position object 1, 0, 10, 10
+make object sphere 2, 5
+position object 2, 0, 20, 10
+
+` create a rigid body box for object 1 and a rigid body
+` sphere for object 2
+phy make rigid body dynamic box 1
+phy make rigid body dynamic sphere 2
+
+` main program loop
+do
+   ` call phy update to process the simulation
+   phy update
+
+   ` call sync to update the screen
+   sync
+loop
+
+` stop the physics engine
+phy end
+
+

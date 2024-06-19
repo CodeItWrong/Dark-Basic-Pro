@@ -1,0 +1,21 @@
+
+` fire emitter
+
+phy start
+sync on
+sync rate 0
+autocam off
+color backdrop 0
+
+phy make fire emitter 1, 512, 0, 0, 0
+load image "fire.png", 1
+texture object 1, 1
+ghost object on 1, 0
+
+position camera 0, 40, -80
+
+do
+   sync
+   phy update
+loop
+

@@ -1,0 +1,365 @@
+rem Water Demo
+
+rem Screenshot control
+global notextandlogos : notextandlogos=0
+
+rem Init
+width#=800 : height#=600
+set display mode width#,height#,32,0
+sync on : sync rate 0 : autocam off
+set text font "Verdana"
+ink 0,0
+
+rem Counters
+tmlast as double integer
+tmcode as double integer
+tmphysics as double integer
+tmvisuals as double integer
+
+rem Light
+set normalization on : set ambient light 5
+set directional light 0,0.2,-0.7,0.1
+
+rem Camera
+position camera -40,12,-55
+set camera range 1,15000
+set camera aspect width#/height#
+set camera fov 70
+backdrop off
+
+rem Settings
+hardwaremode=1
+
+rem Capability
+clipvalid=CLIPTLVERTS AVAILABLE()
+pixelshader#=get maximum pixel shader version()
+
+rem Logo sprite
+load image "logo.png", 100000
+if notextandlogos=0
+ sprite 1, 0, 600 - 60, 100000
+ set sprite 1, 0, 1
+endif
+
+rem SW/HW loop
+do
+
+rem Setup physics
+gosub _physics_init
+gosub _physics_setup
+
+rem Setup water
+gosub _water_setup
+
+rem Main
+while spacekey()=0
+ `
+ rem Give the CPU some game logic to do (faked)
+ tmlast=perftimer()
+ for t=1 to 10000 : a#=sqrt(b#/c#/d#/e#/f#/g#) : next t
+ if tmdelay=0 then tmcode=perftimer()-tmlast
+ `
+ rem Camera movement
+ if upkey()=1 then move camera 1
+ if downkey()=1 then move camera -1
+ angy# = camera angle y()
+ angx# = camera angle x()
+ xrotate camera 0
+ if leftkey()=1 then yrotate camera angy#-90 : move camera 1 : yrotate camera angy#
+ if rightkey()=1 then yrotate camera angy#+90 : move camera 1 : yrotate camera angy#
+ yrotate camera angy#+mousemovex()/2.0
+ xrotate camera angx#+mousemovey()/2.0
+ point camera 0,0,0
+ position listener camera position x(),camera position y(),camera position z()
+ rotate listener 90,0,0
+ `
+ rem Prompts
+ if notextandlogos=0
+  swhw$="HARDWARE"
+  if hardwaremode=0 then swhw$="SOFTWARE" : center text screen width()/2,60,""
+  center text screen width()/2,0+20,"PHYSX IN "+swhw$+"  OBJECTS:"+str$(objid-1)+"  FPS:"+str$(screen fps())+"  CODE:"+str$(tmcode/1000)+"  PHYSICS:"+str$(tmphysics/1000)+"  VISUALS:"+str$(tmvisuals/1000)
+  if physx()=1
+   center text screen width()/2,0+40,"PRESS SPACE TO TOGGLE BETWEEN SOFTWARE AND HARDWARE"
+  else
+   center text screen width()/2,0+40,"PHYSX SOFTWARE SUPPORT ONLY"
+  endif
+  center text screen width()/2,0+60,"ARROW KEYS TO ROTATE AROUND SCENE AND ZOOM IN/OUT"
+  if pixelshader#<2.0 then center text screen width()/2,0+80,"YOU NEED A GPU WITH PIXEL SHADERS 2.0 OR ABOVE"
+ endif
+ `
+ rem Water camera and physics boyancy
+ gosub _physics_handle
+ gosub _water_handle
+ `
+ rem Update simulation
+ tmlast=perftimer()
+ phy update
+ if tmdelay=0 then tmphysics=perftimer()-tmlast
+ `
+ rem Visual update
+ tmlast=perftimer()
+ gosub _sync
+ if tmdelay=0 then tmvisuals=perftimer()-tmlast
+ `
+ rem Timer handler
+ inc tmdelay : if tmdelay>30 then tmdelay=0
+ `
+endwhile
+while spacekey()<>0 : endwhile
+
+rem Prompt
+set text size 30
+center text screen width()/2,screen height()/2,"RESETTING SCENE" : sync
+set text size 12
+
+rem Toggle hardware flag
+hardwaremode=1-hardwaremode
+
+rem Free usages
+phy update
+delete effect 1 : delete camera 1 : delete camera 2
+for s=10 to 10+splashmax : delete sound s : next s
+delete objects 1,objidmax
+phy end
+
+rem SW/HW endloop
+loop
+end
+
+_sync:
+
+rem Hide water
+Hide object 2
+
+rem Quick render the RTTs first
+sync mask 0x00000006 : fastsync
+
+rem Show water
+show object 2
+
+rem Debug Keys
+if shiftkey()=1 then paste image 3,0,0
+if controlkey()=1 then paste image 4,0,0
+
+rem Sync/end loop
+sync mask 0x00000001 : sync
+
+return
+
+_physics_init:
+ `
+ rem Start the Physics Engine
+ if hardwaremode=1
+  if physx()=1
+   phy start 1,0,1
+  else
+   hardwaremode=0
+   phy start
+  endif
+ else
+  phy start
+ endif
+ phy set skin width 0.001
+ `
+return
+
+_water_setup:
+
+rem make a refraction camera
+make camera 1
+set camera range 1,1,15000
+set camera fov 1,70
+set camera aspect 1,width#/height#
+backdrop off 1
+set camera to image 1,3,512,512
+
+rem make reflection camera
+make camera 2
+set camera range 2,1,15000
+set camera fov 2,70
+set camera aspect 2,width#/height#
+backdrop off 2
+set camera to image 2,4,512,512
+set camera clip 2,2,0,0,0,0,1,0
+
+rem make water
+set dir "Water"
+load image "waves2.dds",2
+make object plain 2,2000,2000
+xrotate object 2,90
+texture object 2,0,2
+texture object 2,1,3
+texture object 2,2,4
+load effect "Fresnel Water.fx",1,0
+set object effect 2,1
+set object transparency 2,1
+
+rem make floor for water
+load image "f_g_01_d2.dds",5
+make object plain 5,2000,2000
+xrotate object 5,270
+position object 5,0,-20,0
+scale object texture 5,20,20
+texture object 5,5
+set dir ".."
+
+rem make skybox
+set dir "Sky"
+load object "skybox.x",3
+set object light 3,0
+scale object 3,20000,20000,20000
+set object texture 3,2,1
+set object cull 3,0
+set dir ".."
+
+return
+
+_physics_setup:
+
+rem create original object
+load object "Wood\physXcrate.X",1 : hide object 1 : set object cull 1,0
+
+rem make small box boat
+objid=10 : clone object objid,1 : scale object objid,300,300,300 : position object objid,0,0,0 : rotate object objid,-5,0,0 : phy make rigid body dynamic box objid
+objid=11 : clone object objid,1 : scale object objid,200,200,200 : position object objid,0,20,0 : rotate object objid,-5,0,0 : phy make rigid body dynamic box objid
+
+rem create many
+dim crate(2000)
+for m=0 to 299
+ rem crate
+ inc objid : instance object objid,1
+ position object objid,cos(m*22)*50,50+(m*10),sin(m*22)*50
+ rotate object objid,rnd(360),rnd(360),rnd(360)
+ phy make rigid body dynamic box objid
+ phy add rigid body force objid,0,rnd(1000),0,1
+ crate(objid)=0
+next m
+
+rem Water splash
+splashmax=50
+set dir "Water"
+dim splash(splashmax)
+if splashmax>0
+ load 3dsound "splash.wav",10
+ for s=11 to 10+splashmax : clone sound s,10 : next s
+endif
+
+rem Make splash objects (ripple & decal effect)
+load image "ripple16.png",11
+load image "bigsplash161.dds",12
+for ss=1 to splashmax
+ inc objid : make object plain objid,10,10
+ xrotate object objid,270
+ texture object objid,11
+ set object light objid,0
+ set object transparency objid,2
+ hide object objid
+ if ss=1 then splashobj=objid
+ inc objid : make object plain objid,10,10
+ texture object objid,12
+ set object light objid,0
+ set object transparency objid,2
+ hide object objid
+next ss
+objidmax=objid
+set dir ".."
+
+rem Scale listener for correct sound scape
+scale listener 0.2
+
+return
+
+_physics_handle:
+ `
+ rem create a boyancy force effect below waterline
+ waterlevelangle#=wrapvalue(waterlevelangle#+1.0)
+ waterlevel#=cos(waterlevelangle#)
+ for objid=10 to 299
+  rem boyancy force
+  forcex#=0.0
+  forcey#=0.0
+  forcez#=0.0
+  mass#=phy get rigid body mass(objid)
+  if object position y(objid)<0
+   rem hit water line
+   forcey#=(abs(object position y(objid))*mass#)/2.0
+   phy set rigid body angular damping objid,0.1+abs(object position y(objid)/2.0)
+   phy set rigid body linear damping objid,0.1+abs(object position y(objid)*4)
+  endif
+  if splashmax>0
+   if object position y(objid)<0 and objid>11
+    rem splash
+    if crate(objid)=0
+     for s=1 to splashmax
+      if splash(s)=0
+       splash(s)=32
+       posx#=object position x(objid)
+       posz#=object position z(objid)
+       position object splashobj+((s-1)*2)+0,posx#,0.1,posz# : show object splashobj+((s-1)*2)+0
+       position object splashobj+((s-1)*2)+1,posx#,6.0,posz# : show object splashobj+((s-1)*2)+1
+       play sound 10+s : position sound 10+s,posx#,waterlevel#,posz#
+       set sound speed 10+s,18000+rnd(3000)
+       exit
+      endif
+     next s
+     crate(objid)=1
+    endif
+   endif
+  endif
+  rem small water/wave influences
+  if object position y(objid)<waterlevel#
+   forcey#=forcey#+(rnd(500)/100.0)*(mass#/200.0)
+  endif
+  phy add rigid body force objid,forcex#,forcey#,forcez#,1
+ next objid
+ `
+ rem handle splashes
+ if splashmax>0
+  for s=1 to splashmax
+   if splash(s)>0
+    s#=50+(100-((splash(s)/32.0)*100.0)) : ss#=s#/2.0
+    splobj1=splashobj+((s-1)*2)+0 : scale object splobj1,s#,s#,s#
+    splobj2=splashobj+((s-1)*2)+1 : scale object splobj2,100+ss#,100+ss#,100+ss#
+    point object splobj2,camera position x(),camera position y(),camera position z()
+    rotate object splobj2,0,object angle y(splobj2),0
+    splash(s)=splash(s)-1
+    if splash(s)>0
+     rem animation UV plain
+     objid=splobj1 : frame=15-(splash(s)/2) : gosub _animate_uv_plain
+     objid=splobj2 : frame=15-(splash(s)/2) : gosub _animate_uv_plain
+    else
+     hide object splobj1 : hide object splobj2
+    endif
+   endif
+  next s
+ endif
+ `
+return
+
+_water_handle:
+ `
+ rem move camera 2 to camera 1 pos
+ position camera 1,camera position x(),camera position y(),camera position z()
+ rotate camera 1,camera angle x(),camera angle y(),camera angle z()
+ position camera 2,camera position x(),camera position y(),camera position z()
+ rotate camera 2,camera angle x(),camera angle y(),camera angle z()
+ `
+ rem sky position for camera
+ position object 3,camera position x(0),camera position y(0)+200,camera position z(0)
+ `
+return
+
+_animate_uv_plain:
+ `
+ lock vertexdata for limb objid,0
+ vi=0 : vv#=(frame/4)/4.0 : uu#=(frame-(int(vv#)*4))/4.0
+ u0#=uu# : u1#=uu#+0.25 : v0#=vv# : v1#=vv#+0.25
+ set vertexdata uv vi+0,u1#,v0#
+ set vertexdata uv vi+1,u0#,v0#
+ set vertexdata uv vi+2,u1#,v1#
+ set vertexdata uv vi+3,u0#,v0#
+ set vertexdata uv vi+4,u0#,v1#
+ set vertexdata uv vi+5,u1#,v1#
+ unlock vertexdata
+ `
+return

@@ -1,0 +1,49 @@
+` triggers
+
+phy start
+autocam off
+sync on
+sync rate 60
+color backdrop 0
+position camera 0, 20, -70
+
+make object box 1, 50, 1, 50
+phy make rigid body static box 1
+
+y# = 1
+
+for i = 10 to 20
+   make object box i, 2, 2, 2
+   position object i, -10, y#, 0
+
+   y# = y# + 2
+
+   phy make rigid body dynamic box i
+next i
+
+make object box 2, 5, 5, 5
+position object 2, 0, 5, 0
+phy make rigid body dynamic box 2
+make object sphere 3, 20
+position object 3, 20, 20, 0
+set object wireframe 3, 1
+
+phy make trigger sphere 1, 20, 10, 0, 10
+
+load image "logo.png", 100000
+sprite 1, 0, 600 - 60, 100000
+
+do
+   if spacekey ( )
+      phy set rigid body linear velocity 2, 10, 10, 0
+   endif
+
+   while phy get trigger data ( )
+      phy set rigid body linear velocity 10, -10, 10, 0
+   endwhile
+
+   phy update
+   sync
+loop
+
+

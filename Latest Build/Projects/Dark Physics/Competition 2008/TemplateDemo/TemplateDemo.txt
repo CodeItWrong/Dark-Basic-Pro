@@ -1,0 +1,70 @@
+TEMPLATE DEMO
+=============
+
+This templaye demo can be used as a starting point for your competition entry, or as a reference for how best to scale your demo as required by the guidelines.
+
+The Program
+-----------
+
+The program has been designed to make adding your specific demo as simple as possible, so you can focus on your content rather than issues such as hardware versus software, scaling interfaces, logos and resetting your scenes.
+
+Three subroutines have been made available which you can customise with your own code, and are called from within the framework of the template demo. These three calls are as follows:
+
+gosub _yourdemo_setup
+gosub _yourdemo_handle
+gosub _yourdemo_end
+
+Further down in the program you can find the subroutines with some basic code to demonstrate scaling and cleanup. You can erase the contents of these subroutines and replace with your own, but as a guide to best practises we will take a look at the code provided.
+
+_yourdemo_setup:
+ `
+ rem Create your scene
+ make object box 1,100,20,100
+ phy make rigid body dynamic box 1
+ phy set rigid body kinematic 1,1
+` phy make rigid body static box 1,0
+ for o=2 to scale*2000
+  make object cube o,1
+  position object o,rnd(10)-5,10+(o*2),rnd(10)-5
+  phy make rigid body dynamic box o
+  color object o,rgb(255,128,0)
+ next o
+ omax=o-1
+ `
+ rem Place scene camera
+ position camera 0,125,-150
+ point camera 0,35,0
+ `
+return
+
+The above subroutine sets up the scene with a large white platform and a stream of small cubes that fall from the sky, and finally sets the camera for the best view. As you can see the SCALE variable is used effectively here so that if the scale value is one (LOW), only 2000 cubes are created. If the scale value is two (MEDIUM) then 4000 cubes are created, and scale value of three produces 6000 cubes to push the simulation to the extreme. When you create your own scene set-up, use the SCALE variable (1-LOW,2-MEDIUM,3-HIGH) to scale up the complexity of your scene. The next subroutine is called every cycle of the demo, and you can use this to display additional screen prompts and handle your physics behaviour.
+
+_yourdemo_handle:
+ `
+ rem Handle your demo here
+ if notextandlogos=0
+  center text screen width()/2,20,"use mouse to rotate white platform"
+  center text screen width()/2,40,str$(statistic(1))+" polygons in scene"
+ endif
+ phy set rigid body kinematic rotation 1, (mousey()-300)/-5.0, (mousex()-400)/-5.0, 0
+ `
+return
+
+The above code simply displays a user prompt and polygon count, and then uses the mouse position to calculate a rotation for the large white platform. By moving the platform, the falling cubes are redirected in different directions to demonstrate true physics at work.
+
+_yourdemo_end:
+ `
+ rem Delete scene completely
+ for o=1 to omax
+  if object exist(o)=1
+   phy delete rigid body o
+   delete object o
+  endif
+ next o
+ `
+return
+
+The final subroutine is used to clean up your scene when the demo is reset for a new simulation. It is very important you free any objects and resources that you created in your _yourdemo_setup subroutine. Fail to do this and you will find the program will fail when you try to create a second scene over the first one.
+
+Follow these basic guidelines and you will quickly and easily create physics demos that conform to the requirements that the program should scale and be presented in a user friendly manner. Good luck!
+

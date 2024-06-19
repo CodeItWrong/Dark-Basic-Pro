@@ -1,0 +1,22 @@
+
+` creating a simple emitter
+
+phy start
+sync on
+sync rate 0
+autocam off
+color backdrop 0
+
+phy make particle emitter 1, 512, 0.01, 0.0, 0.0, 0.0, 2.0, 0.0, 1.0, 0.0
+
+load image "fire.png", 1
+texture object 1, 1
+ghost object on 1, 0
+
+position camera 0, 0, -10
+
+do
+   phy update
+   sync
+loop
+

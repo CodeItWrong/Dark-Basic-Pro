@@ -1,0 +1,76 @@
+
+` a point on line joint demonstration
+
+` setup the program
+phy start
+autocam off
+sync on
+sync rate 60
+color backdrop 0
+position camera 0, 20, -70
+make light 1
+set directional light 1, -5, -5, 5
+
+rem stripe textures
+load image "stripe5.png",8
+make object sphere 8,400,48,48
+texture object 8,8
+scale object texture 8,6,6
+set object cull 8,0
+load image "stripe6.png",1
+
+` create static box on left
+make object cube 2, 5
+position object 2, -20, 15, 0
+color object 2, rgb ( rnd ( 255 ), rnd ( 255 ), rnd ( 255 ) )
+set object specular 2, rgb ( rnd ( 255 ), rnd ( 255 ), rnd ( 255 ) )
+set object ambient 2, 255
+set object specular power 2, 255
+phy make rigid body static box 2
+
+` create static box on right
+make object cube 3, 5
+position object 3, 20, 15, 0
+color object 3, rgb ( rnd ( 255 ), rnd ( 255 ), rnd ( 255 ) )
+set object specular 3, rgb ( rnd ( 255 ), rnd ( 255 ), rnd ( 255 ) )
+set object ambient 3, 255
+set object specular power 3, 255
+phy make rigid body static box 3
+
+` create dynamic box
+make object cube 4, 5
+position object 4, 0, 15, 0
+phy make rigid body dynamic box 4
+texture object 4,1
+
+` set up point on line joint
+phy make point on line joint 1, 2, 4, 0, 15, 0, 1, 0, 0
+
+` display Dark Physics logo
+load image "logo.png", 100000
+sprite 1, 0, 600 - 60, 100000
+
+` main program loop
+do
+   ` display instructions
+   set cursor 0, 0
+   print "Point on line joint example"
+   print "Press w to apply force to the left"
+   print "Press d to apply force to the right"
+
+
+   ` apply force on key press
+   if inkey$ ( ) = "w"
+      phy set rigid body linear velocity 4, -10, 0, 0
+   endif
+
+   if inkey$ ( ) = "d"
+      phy set rigid body linear velocity 4, 10, 0, 0
+   endif
+
+   ` update simulation and screen
+   phy update
+   sync
+loop
+
+

@@ -1,0 +1,195 @@
+
+rem hardware driven fluid with interactions
+
+rem Init
+sync on : sync rate 0 : autocam off
+set text font "Verdana"
+ink rgb(0,0,0),0
+
+rem preare counters
+tmlast as double integer
+tmcode as double integer
+tmphysics as double integer
+tmvisuals as double integer
+
+rem Camera
+position camera -6,6,-6 : point camera 0,0,0
+color backdrop rgb(220,255,220)
+set normalization on : set ambient light 5
+set directional light 0,0.1,-0.7,0.4
+set camera range 1,3000
+
+rem Goo light
+make light 1 : set point light 1,0,1,0
+color light 1,-200,200,-200
+
+rem settings
+videomode=0
+
+rem Logo sprite
+load image "logo.png", 100000 : sprite 1,0,screen height()-60,100000
+size sprite 1,screen width(),60
+
+rem SW/HW loop
+clear=mousemovex()
+clear=mousemovey()
+do
+
+rem Setup physics
+gosub _physics_init
+gosub _physics_setup
+
+phy update 0
+
+rem Main
+clear=mousemovex()
+clear=mousemovey()
+while spacekey()=0
+ `
+ rem give the CPU some game logic to do (faked)
+ tmlast=perftimer()
+ for t=1 to 10000 : a#=sqrt(b#/c#/d#/e#/f#/g#) : next t
+ if tmdelay=0 then tmcode=perftimer()-tmlast
+ `
+ rem Spin camera
+ inc spin#,0.5
+ position camera 0+(cos(spin#)*8),5,0+(sin(spin#)*8)
+ point camera 0,-1,0
+ `
+ rem prompts
+ if videomode=0
+  swhw$="HARDWARE"
+  if physx()=1
+   center text screen width()/2,20,"PHYSX IN "+swhw$+"  OBJECTS:"+str$(objid-1)+"  FPS:"+str$(screen fps())+"  CODE:"+str$(tmcode/1000)+"  PHYSICS:"+str$(tmphysics/1000)+"  VISUALS:"+str$(tmvisuals/1000)
+  else
+   center text screen width()/2,20,"NO FLUIDS IN SOFTWARE ONLY MODE"
+  endif
+  center text screen width()/2,40,"PRESS SPACE TO RESET SCENE"
+  if inkey$()="v" then videomode=1
+ endif
+ `
+ rem update simulation
+ tmlast=perftimer()
+ phy update 1
+ phy update 0
+ if tmdelay=0 then tmphysics=perftimer()-tmlast
+ `
+ rem visual update
+ tmlast=perftimer()
+ sync
+ if tmdelay=0 then tmvisuals=perftimer()-tmlast
+ `
+ rem timer handler
+ inc tmdelay : if tmdelay>30 then tmdelay=0
+ `
+endwhile
+while spacekey()<>0 : endwhile
+
+rem Prompt
+set text size 30
+center text screen width()/2,screen height()/2,"RESETTING SCENE" : sync
+set text size 12
+
+rem otggle hardware flag
+hardwaremode=1-hardwaremode
+
+rem free usages
+phy update 1
+delete objects 1,objid
+phy end
+
+rem SW/HW endloop
+loop
+end
+
+_physics_init:
+ `
+`phy set ground plane 1
+
+ rem No fluid in software
+ if physx()=1
+  hardwaremode=1
+ else
+  hardwaremode=0
+ endif
+ `
+ rem Start the Physics Engine in SOFTWARE (fluid automatically uses hardware)
+ phy start : phy set skin width 0.02
+ `
+return
+
+_physics_setup:
+
+rem make some fluid
+phy make fluid 2
+phy set fluid position 2, -1, 1, -1
+phy set fluid viscosity 2, 50
+phy set fluid damping 2, 0.5
+phy set fluid particle buffer cap 2,5000
+phy build fluid 2
+
+rem apply a cubemap to the fluid to create a fake reflective tint to it
+load image "oilmap-tame.tga",5 : color object 2,rgb(255,255,255)
+set sphere mapping on 2,5
+set normalization on
+set object light 2,0
+set object transparency 2,2
+
+rem make material no bounce
+nobouncematerial=1
+phy make material nobouncematerial, "little bounce"
+phy set material restitution nobouncematerial,0.1
+phy build material nobouncematerial
+
+rem container dir
+set dir "Container"
+
+rem create original cylinder model
+objid=3 : load object "cylinder_c.X",objid
+load image "cylinder_c_D2.tga",3
+texture object objid,3
+scale object objid,2.5,2.5,2.5
+make mesh from object objid,objid
+delete object objid
+make object objid,objid,3
+hide object objid
+cylinderobj=objid
+
+rem restore dir
+set dir ".."
+
+rem make a trench system
+load image "dbprocubemap.dds",4
+inc objid : make object box objid,5,0.1,5 : rotate object objid,1,0,0-30 : set cube mapping on objid,4,4,4,4,4,4
+phy make rigid body static box objid,nobouncematerial
+inc objid : make object box objid,5,0.1,5 : rotate object objid,1,0,030 : set cube mapping on objid,4,4,4,4,4,4
+phy make rigid body static box objid,nobouncematerial
+inc objid : make object box objid,5,0.1,5 : rotate object objid,30,90,0 : set cube mapping on objid,4,4,4,4,4,4
+phy make rigid body static box objid,nobouncematerial
+inc objid : make object box objid,5,0.1,5 : rotate object objid,-30,90,0 : set cube mapping on objid,4,4,4,4,4,4
+phy make rigid body static box objid,nobouncematerial
+
+rem create decorative spheres
+inc objid : make object sphere objid,5,10,10 : position object objid,0,-2,0 : set cube mapping on objid,4,4,4,4,4,4
+phy make rigid body static sphere objid,nobouncematerial
+for a=0 to 270 step 90
+ inc objid : make object sphere objid,1.25,10,10 : position object objid,cos(45+a)*3,1,sin(45+a)*3 : set cube mapping on objid,4,4,4,4,4,4
+ phy make rigid body static sphere objid,nobouncematerial
+ inc objid : make object sphere objid,1.25,10,10 : position object objid,cos(45+a)*3,-1,sin(45+a)*3 : set cube mapping on objid,4,4,4,4,4,4
+ phy make rigid body static sphere objid,nobouncematerial
+next a
+
+rem allow fluid to settle
+for settle=0 to 129 : phy update : next settle
+
+rem make cylinders
+for c=1 to 10
+ inc objid : instance object objid,cylinderobj
+ position object objid,(rnd(100)-50)/1000.0,10+(c*3),(rnd(100)-50)/1000.0
+ rotate object objid,rnd(360),rnd(360),rnd(360)
+ phy make rigid body dynamic box objid,nobouncematerial
+ phy set rigid body mass objid,1
+next c
+
+return
+

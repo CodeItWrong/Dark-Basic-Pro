@@ -1,0 +1,30 @@
+
+` using materials
+
+phy start
+autocam off
+sync on
+sync rate 60
+color backdrop 0
+
+make object box 1, 40, 1, 40
+phy make rigid body static box 1
+color object 1, rgb ( 10, 10, 10 )
+
+phy make material 1, "bouncy"
+phy set material restitution 1, 1.0
+phy build material 1
+
+make object cube 2, 2.5
+position object 2, 0, 10, 0
+phy make rigid body dynamic box 2, 1
+color object 2, rgb ( 0, 0, 255 )
+
+position camera 0, 5, -20
+
+do
+   sync
+   phy update
+loop
+
+
