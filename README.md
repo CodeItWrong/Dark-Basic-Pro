@@ -2,6 +2,7 @@
 *Please Run this on Windows 7 or Compatibility Mode*
 
 Note: Windows 11 currently crashes even with Compatibility Mode on!
+
 ![image](https://github.com/streamitwrong/Dark-Basic-Pro/assets/173308376/611f041f-7a5b-4278-acbe-ea3a810775f7)
 
 Dark Basic Pro is an open source BASIC programming language for creating Windows applications and games. The solution requires Microsoft DirectX SDK (August 2007):
