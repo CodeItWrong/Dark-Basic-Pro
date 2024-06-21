@@ -1,4 +1,6 @@
 # Dark-Basic-Pro
+*Please Run this on Windows 7 or Compatibility Mode*
+
 Dark Basic Pro is an open source BASIC programming language for creating Windows applications and games. The solution requires Microsoft DirectX SDK (August 2007):
 https://archive.org/details/dxsdk_aug2007
 
